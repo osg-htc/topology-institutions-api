@@ -1,31 +1,19 @@
 FROM opensciencegrid/software-base:23-el9-release
 
 RUN yum update -y && \
-    (yum install -y git-core || yum install -y git) && \
-    yum install -y make && \
-     yum install -y python3-pip httpd mod_auth_openidc mod_ssl python3-mod_wsgi && \
+    yum install -y python3-pip httpd mod_auth_openidc mod_ssl python3-mod_wsgi && \
     yum clean all && rm -rf /var/cache/yum/*
-
-RUN \
-    pushd /tmp && \
-    git clone https://github.com/opensciencegrid/osg-ca-generator.git && \
-    pushd osg-ca-generator && \
-    make install && \
-    osg-ca-generator --host && \
-    popd && \
-    popd
 
 # Add the apache VirtualHost, to setup the WSGI module for the app
 COPY apache.conf /etc/httpd/conf.d/
-# TODO this is a hack
-RUN rm -f /etc/httpd/conf.d/ssl.conf
 
 # Install FastAPI and the WSGIMiddleware
 COPY requirements.txt /srv/requirements.txt
 RUN pip install -r /srv/requirements.txt
 
 # Add the FastAPI application
-COPY src/ /srv/app/
-RUN chown -R apache:apache /srv/app
+COPY wsgi.py /srv/
+COPY app/ /srv/app/
+RUN chown -R apache:apache /srv/
 
 CMD ["httpd", "-D", "FOREGROUND"]
