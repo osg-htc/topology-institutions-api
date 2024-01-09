@@ -37,8 +37,11 @@ class InstitutionIdentifier(Base):
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid4)
 
+    identifier = Column(String)
+
     institution_id: Mapped[UUID] = mapped_column(ForeignKey('institution.id'))
     identifier_type_id: Mapped[UUID] = mapped_column(ForeignKey('identifier_type.id'))
 
-    identifier_type: Mapped["IdentifierType"] = relationship(back_populates="children")
+
+    identifier_type: Mapped["IdentifierType"] = relationship()
 
