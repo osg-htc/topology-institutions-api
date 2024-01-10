@@ -29,7 +29,13 @@ class Institution(Base):
     created_by = Column(String)
     updated_by = Column(String)
 
-    identifiers: Mapped[List["InstitutionIdentifier"]] = relationship()
+    identifiers: Mapped[List["InstitutionIdentifier"]] = relationship(cascade="delete")
+
+
+    def __init__(self, name, topology_identifier):
+        self.name = name
+        self.topology_identifier = topology_identifier
+
 
 
 class InstitutionIdentifier(Base):
@@ -45,3 +51,7 @@ class InstitutionIdentifier(Base):
 
     identifier_type: Mapped["IdentifierType"] = relationship()
 
+
+    def __init__(self, identifier_type: IdentifierType, identifier: UUID):
+        self.identifier_type_id = identifier_type.id
+        self.identifier = identifier
