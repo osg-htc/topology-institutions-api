@@ -13,7 +13,7 @@ RUN pip install -r /srv/requirements.txt
 
 # Add the FastAPI application
 COPY wsgi.py /srv/
-COPY app/ /srv/app/
+COPY institutions-api/ /srv/app/
 RUN chown -R apache:apache /srv/
 
 CMD ["httpd", "-D", "FOREGROUND"]
