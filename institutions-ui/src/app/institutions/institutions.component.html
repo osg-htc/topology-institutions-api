@@ -1,0 +1,14 @@
+<h2>Institutions</h2>
+<div class="institutions-list">
+    <div class="institutions-list-header">
+        <div class="institutions-list-name"> Institution Name </div>
+        <div class="institutions-list-info"> OSG ID </div>
+        <div class="institutions-list-info"> ROR ID </div>
+    </div>
+
+    <div class="institutions-list-row" *ngFor="let inst of institutions">
+        <div class="institutions-list-name"> {{inst.name}} </div>
+        <div class="institutions-list-info"> {{inst.id}} </div>
+        <div class="institutions-list-info"> {{inst.ror_id}} </div>
+    </div>
+</div>

@@ -1,0 +1,25 @@
+.institutions-list {
+    display: flex;
+    flex-direction: column;
+
+    &-row {
+        display: flex;
+        flex-direction: row;
+        padding-bottom: 1em;
+    }
+
+    &-header {
+        display: flex;
+        flex-direction: row;
+        padding-bottom: 1em;
+        font-weight: 700;
+    }
+
+    &-name {
+        flex-basis: 40%;
+    }
+
+    &-info {
+        flex-basis: 30%;
+    }
+}
