@@ -1,12 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Institution } from './institutions.models';
-import { InstitutionsService } from './institutions.service';
+import { Institution } from '../institutions/institutions.models';
+import { InstitutionsService } from '../institutions/institutions.service';
+import { Router, RouterModule } from '@angular/router';
 
 @Component({
   selector: 'app-institutions',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, RouterModule],
   templateUrl: './institutions.component.html',
   styleUrl: './institutions.component.scss'
 })
@@ -16,10 +17,13 @@ export class InstitutionsComponent implements OnInit{
   ]
 
   
-  constructor(private instService: InstitutionsService) {}
+  constructor(private instService: InstitutionsService, private router: Router) {}
 
   ngOnInit() {
     this.instService.getInstitutions().subscribe(institutions=>this.institutions = institutions)
   }
 
+  editRouteFor(inst: Institution) {
+    return `/edit/${this.instService.shortId(inst.id)}`
+  }
 }

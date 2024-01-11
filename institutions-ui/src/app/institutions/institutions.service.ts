@@ -1,6 +1,6 @@
 import { Injectable } from "@angular/core";
 import { HttpClient } from "@angular/common/http";
-import { Institution } from "./institutions.models";
+import { Institution } from "./institutions.models"; 
 
 const BASE_URL = '/api'
 
@@ -8,6 +8,18 @@ const BASE_URL = '/api'
   providedIn: 'root',
 })
 export class InstitutionsService {
+  shortId(institutionId: String) {
+    // TODO this is a kludge
+    return institutionId.replace('https://osg-htc.org/iid/', '')
+  }
+
+  createInstitution(institution: Institution) {
+    return this.http.post(`${BASE_URL}/institutions`, institution)
+  }
+
+  updateInstitution(institutionId: string, institution: Institution) {
+    return this.http.put(`${BASE_URL}/institutions/${this.shortId(institutionId)}`, institution)
+  }
 
   constructor(private http: HttpClient) {}
 
@@ -15,10 +27,14 @@ export class InstitutionsService {
     return this.http.get<Institution[]>(`${BASE_URL}/institution_ids`)
   }
 
-  getInstitutionDetails(institution_id: String) {
+  getInstitutionDetails(institutionId: String) {
     // TODO this is a kludge
-    const stripped_id = institution_id.replace('https://osg-htc.org/iid/', '')
-    return this.http.get<Institution>(`${BASE_URL}/institutions/${stripped_id}`)
+    return this.http.get<Institution>(`${BASE_URL}/institutions/${this.shortId(institutionId)}`)
   }
+
+  deleteInstitution(institutionId: string) {
+    return this.http.delete(`${BASE_URL}/institutions/${this.shortId(institutionId)}`);
+  }
+
 
 }

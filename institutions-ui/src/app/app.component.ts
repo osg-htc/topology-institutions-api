@@ -1,15 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule, NgFor } from '@angular/common';
 import { RouterOutlet } from '@angular/router';
-import { InstitutionsService } from './institutions/institutions.service';
-import { mergeMap } from 'rxjs';
-import { Institution } from './institutions/institutions.models';
-import { InstitutionsComponent } from './institutions/institutions.component';
+import { InstitutionsComponent } from './institutions-list/institutions.component';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [CommonModule, RouterOutlet, InstitutionsComponent],
+  imports: [ CommonModule, RouterOutlet, InstitutionsComponent ],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss'
 })

@@ -1,0 +1,23 @@
+.institutions-editor {
+    display: flex;
+    flex-direction: column;
+    max-width: 600px;
+
+    & > div {
+        display: flex;
+        padding-bottom: 16px;
+        justify-content: space-between;
+
+        & > input {
+            flex-grow: 1;
+        }
+
+        & > span {
+            min-width: 160px;
+        }
+    }
+
+    & > button {
+        margin-bottom: 16px;
+    }
+}

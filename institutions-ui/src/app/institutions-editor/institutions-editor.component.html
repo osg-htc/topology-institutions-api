@@ -1,0 +1,22 @@
+<h3 *ngIf="institutionId">Editing Institution {{institutionId}}</h3>
+<h3 *ngIf="!institutionId">Create New Institution</h3>
+<div class="institutions-editor">
+    <div>
+        <span>Institution Name:</span> <input type="text" [(ngModel)]="institution.name"/>
+    </div>
+    <div *ngIf="!institutionId">
+        <span>Institution ID:</span> <input type="text" [(ngModel)]="institution.id"/>
+    </div>
+    <div>
+        <span>Institution ROR ID:</span><input type="text" [(ngModel)]="institution.ror_id"/>
+    </div>
+
+    <button (click)="submitInstitution()">
+        <span *ngIf="institutionId">Update Institution</span>
+        <span *ngIf="!institutionId">Create Institution</span>
+    </button>
+
+    <button *ngIf="institutionId" (click)="deleteInstitution()">
+        <span>Delete Institution</span>
+    </button>
+</div>
