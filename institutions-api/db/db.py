@@ -2,9 +2,9 @@ from sqlalchemy import create_engine, select, delete
 from sqlalchemy.orm import sessionmaker, Session
 from os import environ
 import urllib.parse
-from .models import *
+from .db_models import *
 from ..util.oidc_utils import OIDCUserInfo
-from ..models.models import InstitutionModel, OSG_ID_PREFIX
+from ..models.api_models import InstitutionModel, OSG_ID_PREFIX
 # TODO not the best practice to return http errors from db layer
 from fastapi import HTTPException
 

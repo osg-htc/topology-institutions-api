@@ -5,6 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { CommonModule } from "@angular/common";
 import { Router } from '@angular/router';
 
+
 @Component({
   selector: 'app-institutions-editor',
   standalone: true,
@@ -14,9 +15,14 @@ import { Router } from '@angular/router';
 })
 export class InstitutionsEditorComponent implements OnInit {
 
+  OSG_ID_PREFIX = "https://osg-htc.org/iid/"
+  ROR_ID_PREFIX = "https://ror.org/"
+
   institutionId?: string;
 
-  institution: Institution = {name:'', id:'', ror_id:''};
+  institution: Institution = {name:'', id: this.OSG_ID_PREFIX , ror_id: this.ROR_ID_PREFIX };
+
+  errorMessage?: string;
 
   constructor(private instService: InstitutionsService, private router: Router) {}
 
@@ -42,14 +48,14 @@ export class InstitutionsEditorComponent implements OnInit {
 
     submitAction.subscribe({
       next: () => this.router.navigate(['/']),
-      error: (err) => console.error(err)
+      error: (err) => this.errorMessage = err.message || err.msg
     })
   }
 
   deleteInstitution(): void {
     this.instService.deleteInstitution(this.institutionId!).subscribe({
       next: () => this.router.navigate(['/']),
-      error: (err) => console.error(err)
+      error: (err) => this.errorMessage = err.message || err.msg
     })
   }
 

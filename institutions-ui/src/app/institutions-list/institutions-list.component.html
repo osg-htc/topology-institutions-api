@@ -1,7 +1,4 @@
-<div class="institutions-header">
-    <h3>Institutions List</h3>
-    <button [routerLink]="'/add'">Add Institution</button>
-</div>
+<button [routerLink]="'/add'">Add Institution</button>
 <div class="institutions-list">
     <div class="institutions-list-header">
         <div class="institutions-list-name"> Institution Name </div>
@@ -9,8 +6,8 @@
         <div class="institutions-list-info"> ROR ID </div>
     </div>
 
-    <div class="institutions-list-row" *ngFor="let inst of institutions" [routerLink]="editRouteFor(inst)">
-        <div class="institutions-list-name"> {{inst.name}} </div>
+    <div class="institutions-list-row" *ngFor="let inst of institutions" >
+        <div class="institutions-list-name"> <a [routerLink]="editRouteFor(inst)">{{inst.name}} </a></div>
         <div class="institutions-list-info"> {{inst.id}} </div>
         <div class="institutions-list-info"> {{inst.ror_id}} </div>
     </div>

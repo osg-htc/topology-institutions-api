@@ -1,3 +1,6 @@
+button {
+    margin-bottom: 16px;
+}
 .institutions-list {
     display: flex;
     flex-direction: column;
@@ -5,13 +8,17 @@
     &-row {
         display: flex;
         flex-direction: row;
-        padding-bottom: 1em;
+        padding: 12px 12px;
+
+        &:nth-child(2n) {
+            background-color: whitesmoke;
+        }
     }
 
     &-header {
         display: flex;
         flex-direction: row;
-        padding-bottom: 1em;
+        padding: 12px 12px;
         font-weight: 700;
     }
 

@@ -1,0 +1,9 @@
+.header {
+    padding: 1px 32px;
+    margin: 0 -32px 16px -32px;
+    background-color: lightgray;
+
+    & h2:hover {
+        cursor: pointer;
+    }
+}

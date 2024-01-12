@@ -1,12 +1,13 @@
 from pydantic import BaseModel, Field, model_validator
 from typing import Optional, Literal
-from ..db.models import Institution
+from ..db.db_models import Institution
 
 OSG_ID_PREFIX = "https://osg-htc.org/iid/"
 ROR_ID_PREFIX = "https://ror.org/"
 
 
 class InstitutionModel(BaseModel):
+    """ API model for topology institutions """
     name: str = Field(..., description="The name of the institution")
     id: str = Field(..., description="The institution's OSG ID")
     ror_id: Optional[str] = Field(None, description="The institution's research organization registry id (https://ror.org/)")
@@ -21,6 +22,7 @@ class InstitutionModel(BaseModel):
 
     @model_validator(mode='after')
     def check_id_format(self):
-        assert self.id.startswith(OSG_ID_PREFIX)
-        assert self.ror_id is None or self.ror_id.startswith(ROR_ID_PREFIX)
+        assert self.name # non-null, non-empty
+        assert self.id.startswith(OSG_ID_PREFIX) # starting with the appropriate prefix
+        assert (not self.ror_id) or self.ror_id.startswith(ROR_ID_PREFIX) # empty, or starting with the appropriate prefix
         return self

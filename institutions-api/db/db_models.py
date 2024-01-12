@@ -10,6 +10,7 @@ class Base(DeclarativeBase):
 
 
 class IdentifierType(Base):
+    """ ORM for types of alternate institution identifier """
     __tablename__ = 'identifier_type'
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid4)
@@ -17,6 +18,7 @@ class IdentifierType(Base):
     description = Column(String)
 
 class Institution(Base):
+    """ ORM for Topology institutions """
     __tablename__ = 'institution'
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid4)
@@ -41,6 +43,7 @@ class Institution(Base):
 
 
 class InstitutionIdentifier(Base):
+    """ ORM for alternate institution identifiers """
     __tablename__ = 'institution_identifier'
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid4)

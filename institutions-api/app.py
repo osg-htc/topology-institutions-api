@@ -1,8 +1,8 @@
 from fastapi import FastAPI, HTTPException, APIRouter, Request, Header
 from .db import db
 from sqlalchemy import select, delete
-from .db.models import Institution
-from .models.models import InstitutionModel
+from .db.db_models import Institution
+from .models.api_models import InstitutionModel
 from .util.oidc_utils import OIDCUserInfo
 from os import environ
 import logging
