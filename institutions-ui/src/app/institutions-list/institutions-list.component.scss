@@ -9,9 +9,10 @@ button {
         display: flex;
         flex-direction: row;
         padding: 12px 12px;
+        border-bottom: 1px solid whitesmoke;
 
         &:nth-child(2n) {
-            background-color: whitesmoke;
+            background-color: rgb(228, 227, 227);
         }
     }
 
