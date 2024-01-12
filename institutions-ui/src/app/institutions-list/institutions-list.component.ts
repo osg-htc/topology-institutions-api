@@ -8,10 +8,10 @@ import { Router, RouterModule } from '@angular/router';
   selector: 'app-institutions',
   standalone: true,
   imports: [CommonModule, RouterModule],
-  templateUrl: './institutions.component.html',
-  styleUrl: './institutions.component.scss'
+  templateUrl: './institutions-list.component.html',
+  styleUrl: './institutions-list.component.scss'
 })
-export class InstitutionsComponent implements OnInit{
+export class InstitutionsListComponent implements OnInit{
   institutions : Institution[] = [
     {name:"University of Wisconsin-Madison", id: "https://osg-htc.org/iid/01y2jtd41", ror_id: "https://ror.org/01y2jtd41"}
   ]

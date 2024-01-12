@@ -10,6 +10,6 @@ RUN ng build --base-href /ui/
 FROM nginx:latest
 
 COPY --from=build-step /build/dist/institutions-ui/browser/ /usr/share/nginx/html
-# COPY institutions-ui/nginx.conf /etc/nginx/conf.d/default.conf
+COPY institutions-ui/nginx.conf /etc/nginx/conf.d/default.conf
 
 EXPOSE 80
