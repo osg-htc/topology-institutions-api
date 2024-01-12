@@ -1,4 +1,5 @@
-<button [routerLink]="'/add'">Add Institution</button>
+<!-- Use regular links here to force OIDC redirect - probably not a best practice -->
+<a href="add"><button>Add Institution</button></a>
 <div class="institutions-list">
     <div class="institutions-list-header">
         <div class="institutions-list-name"> Institution Name </div>
@@ -7,7 +8,7 @@
     </div>
 
     <div class="institutions-list-row" *ngFor="let inst of institutions" >
-        <div class="institutions-list-name"> <a [routerLink]="editRouteFor(inst)">{{inst.name}} </a></div>
+        <div class="institutions-list-name"> <a [href]="editRouteFor(inst)">{{inst.name}} </a></div>
         <div class="institutions-list-info"> {{inst.id}} </div>
         <div class="institutions-list-info"> {{inst.ror_id}} </div>
     </div>
