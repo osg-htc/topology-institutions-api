@@ -3,7 +3,8 @@ from sqlalchemy.orm import sessionmaker, Session
 from os import environ
 import urllib.parse
 from .models import *
-from ..models.models import InstitutionModel
+from ..util.oidc_utils import OIDCUserInfo
+from ..models.models import InstitutionModel, OSG_ID_PREFIX
 # TODO not the best practice to return http errors from db layer
 from fastapi import HTTPException
 
@@ -19,13 +20,24 @@ DbSession = sessionmaker(bind=engine)
 ROR_ID_TYPE = 'ror_id'
 
 def _ror_id_type(session: Session) -> IdentifierType:
+    """ Get the IdentifierType entity that corresponds to ROR ID """
     return session.scalars(select(IdentifierType).where(IdentifierType.name == ROR_ID_TYPE)).first()
 
 def _full_osg_id(short_id):
-    return f"https://osg-htc.org/iid/{short_id}"
+    """ Get the full osg-htc url of an institution based on its ID suffix """
+    return f"{OSG_ID_PREFIX}{short_id}"
 
+
+def get_institutions() -> List[InstitutionModel]:
+    """ Get a sorted list of every valid institution """
+    with DbSession() as session:
+        institutions = session.scalars(select(Institution)
+            .where(Institution.valid)
+            .order_by(Institution.name)).all()
+        return [InstitutionModel.from_institution(i) for i in institutions]
 
 def get_institution(short_id: str) -> InstitutionModel:
+    """ Get an existing institution by ID """
     with DbSession() as session:
         institution = session.scalars(select(Institution)
                 .where(Institution.topology_identifier == _full_osg_id(short_id))).first()
@@ -35,15 +47,17 @@ def get_institution(short_id: str) -> InstitutionModel:
 
         return InstitutionModel.from_institution(institution)
 
-def add_institution(institution: InstitutionModel):
+def add_institution(institution: InstitutionModel, author: OIDCUserInfo):
+    """ Create a new institution """
     with DbSession() as session:
-        inst = Institution(institution.name, institution.id)
+        inst = Institution(institution.name, institution.id, author.id)
         if institution.ror_id:
             inst.identifiers = [InstitutionIdentifier(_ror_id_type(session), institution.ror_id)]
         session.add(inst)
         session.commit()
 
-def update_institution(short_id: str, institution: InstitutionModel):
+def update_institution(short_id: str, institution: InstitutionModel, author: OIDCUserInfo):
+    """ Update an existing institution """
     with DbSession() as session:
         to_update = session.scalar(select(Institution)
             .where(Institution.topology_identifier == _full_osg_id(short_id)))
@@ -53,15 +67,24 @@ def update_institution(short_id: str, institution: InstitutionModel):
         
         to_update.name = institution.name
 
+        # delete any existing ror ids
+        ror_id_type = _ror_id_type(session)
+        session.execute(delete(InstitutionIdentifier)
+            .where(InstitutionIdentifier.institution_id == to_update.id)
+            .where(InstitutionIdentifier.identifier_type_id == ror_id_type.id))
+
+        # re-create the ror id if one is given
         if institution.ror_id:
-            to_update.identifiers = [InstitutionIdentifier(_ror_id_type(session), institution.ror_id)]
-        else:
-            to_update.identifiers = []
+            session.add(InstitutionIdentifier(ror_id_type, institution.ror_id, to_update.id))
+
+        to_update.updated_by = author.id
         session.commit()
 
-def delete_institution(short_id: str):
+def invalidate_institution(short_id: str, author: OIDCUserInfo):
+    """ Mark an existing institution as invalid by id """
     with DbSession() as session:
-        to_delete = session.scalar(select(Institution)
+        to_invalidate = session.scalar(select(Institution)
             .where(Institution.topology_identifier == _full_osg_id(short_id)))
-        session.delete(to_delete)
+        to_invalidate.valid = False
+        to_invalidate.updated_by = author.id
         session.commit()

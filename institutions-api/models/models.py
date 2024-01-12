@@ -1,6 +1,9 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, model_validator
 from typing import Optional, Literal
 from ..db.models import Institution
+
+OSG_ID_PREFIX = "https://osg-htc.org/iid/"
+ROR_ID_PREFIX = "https://ror.org/"
 
 
 class InstitutionModel(BaseModel):
@@ -16,3 +19,8 @@ class InstitutionModel(BaseModel):
             id = inst.topology_identifier,
             ror_id = ror_ids[0] if ror_ids else None)
 
+    @model_validator(mode='after')
+    def check_id_format(self):
+        assert self.id.startswith(OSG_ID_PREFIX)
+        assert self.ror_id is None or self.ror_id.startswith(ROR_ID_PREFIX)
+        return self
