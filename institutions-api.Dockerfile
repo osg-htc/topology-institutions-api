@@ -1,4 +1,4 @@
-FROM opensciencegrid/software-base:23-el9-release
+FROM almalinux:9
 
 RUN yum update -y && \
     yum install -y python3-pip httpd mod_auth_openidc mod_ssl python3-mod_wsgi && \
