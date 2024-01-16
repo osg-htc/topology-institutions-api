@@ -39,8 +39,8 @@ def get_institutions() -> List[InstitutionModel]:
 def get_institution(short_id: str) -> InstitutionModel:
     """ Get an existing institution by ID """
     with DbSession() as session:
-        institution = session.scalars(select(Institution)
-                .where(Institution.topology_identifier == _full_osg_id(short_id))).first()
+        institution = session.scalar(select(Institution)
+                .where(Institution.topology_identifier == _full_osg_id(short_id)))
 
         if institution is None:
             return HTTPException(404, f"No institution found with id {short_id}")
@@ -67,13 +67,11 @@ def update_institution(short_id: str, institution: InstitutionModel, author: OID
         
         to_update.name = institution.name
 
-        # delete any existing ror ids
+        # delete any existing ror ids, then recreate one if given.
         ror_id_type = _ror_id_type(session)
         session.execute(delete(InstitutionIdentifier)
             .where(InstitutionIdentifier.institution_id == to_update.id)
             .where(InstitutionIdentifier.identifier_type_id == ror_id_type.id))
-
-        # re-create the ror id if one is given
         if institution.ror_id:
             session.add(InstitutionIdentifier(ror_id_type, institution.ror_id, to_update.id))
 

@@ -9,7 +9,9 @@ const BASE_URL = '/api'
 })
 export class InstitutionsService {
   shortId(institutionId: String) {
-    // TODO this is a kludge
+    // TODO this is a kludge to workaround difficulties with url encoding the full
+    // OSG ID. It would be preferable in the future to be able to pass the full ID rather
+    // than remove it on the frontend then re-add it on the backend
     return institutionId.replace('https://osg-htc.org/iid/', '')
   }
 
@@ -28,7 +30,6 @@ export class InstitutionsService {
   }
 
   getInstitutionDetails(institutionId: String) {
-    // TODO this is a kludge
     return this.http.get<Institution>(`${BASE_URL}/institutions/${this.shortId(institutionId)}`)
   }
 

@@ -30,12 +30,12 @@ def with_error_logging(func):
 
 @prefix_router.get('/institution_ids')
 @with_error_logging
-def get_institution_ids():
+def get_valid_institutions():
     return db.get_institutions()
 
 @prefix_router.get('/institutions/{institution_id}')
 @with_error_logging
-def get_institution(institution_id: str):
+def get_institution_details(institution_id: str):
     return db.get_institution(institution_id)
 
 
