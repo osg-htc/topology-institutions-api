@@ -1,0 +1,33 @@
+button {
+    margin-bottom: 16px;
+}
+.institutions-list {
+    display: flex;
+    flex-direction: column;
+
+    &-row {
+        display: flex;
+        flex-direction: row;
+        padding: 12px 12px;
+        border-bottom: 1px solid whitesmoke;
+
+        &:nth-child(2n) {
+            background-color: rgb(228, 227, 227);
+        }
+    }
+
+    &-header {
+        display: flex;
+        flex-direction: row;
+        padding: 12px 12px;
+        font-weight: 700;
+    }
+
+    &-name {
+        flex-basis: 40%;
+    }
+
+    &-info {
+        flex-basis: 30%;
+    }
+}

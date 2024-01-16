@@ -1,0 +1,46 @@
+:host {
+    display: flex;
+    flex-direction: column;
+    & > * {
+        width: 600px;
+        align-self: center;
+    }
+}
+
+.institutions-editor {
+    display: flex;
+    flex-direction: column;
+
+    & > div {
+        display: flex;
+        padding-bottom: 16px;
+        justify-content: space-between;
+
+        & > input {
+            flex-grow: 1;
+        }
+
+        & > span {
+            min-width: 160px;
+            align-self: center;
+        }
+    }
+
+    & > button {
+        margin-bottom: 16px;
+    }
+
+    &-error {
+        color: firebrick;
+        font-weight: 700;
+        justify-content: center;
+        text-align: center;
+    }
+
+    &-deactivate {
+        background-color: firebrick;
+        &:hover {
+            background-color: rgb(131, 27, 27);
+        }
+    }
+}

@@ -1,0 +1,26 @@
+<h3 *ngIf="institutionId">Editing Institution {{OSG_ID_PREFIX}}{{institutionId}}</h3>
+<h3 *ngIf="!institutionId">Create Institution</h3>
+<div class="institutions-editor">
+    <div>
+        <span>Institution Name</span> <input type="text" [(ngModel)]="institution.name"/>
+    </div>
+    <div *ngIf="!institutionId">
+        <span>Institution ID</span> <input type="text" [(ngModel)]="institution.id"/>
+    </div>
+    <div>
+        <span>Institution ROR ID</span><input type="text" [(ngModel)]="institution.ror_id"/>
+    </div>
+
+    <button (click)="submitInstitution()">
+        <span *ngIf="institutionId">Update Institution</span>
+        <span *ngIf="!institutionId">Create Institution</span>
+    </button>
+
+    <button class="institutions-editor-deactivate" *ngIf="institutionId" (click)="deleteInstitution()">
+        <span>Deactivate Institution</span>
+    </button>
+
+    <div class="institutions-editor-error" *ngIf="errorMessage">
+        <span>Error from server: {{errorMessage}}</span>
+    </div>
+</div>
