@@ -3,8 +3,11 @@ from sqlalchemy.orm import sessionmaker, Session
 from os import environ
 import urllib.parse
 from .db_models import *
+from .error_wrapper import sqlalchemy_http_exceptions
 from ..util.oidc_utils import OIDCUserInfo
 from ..models.api_models import InstitutionModel, OSG_ID_PREFIX
+from secrets import choice
+from string import ascii_lowercase, digits
 # TODO not the best practice to return http errors from db layer
 from fastapi import HTTPException
 
@@ -86,3 +89,19 @@ def invalidate_institution(short_id: str, author: OIDCUserInfo):
         to_invalidate.valid = False
         to_invalidate.updated_by = author.id
         session.commit()
+
+@sqlalchemy_http_exceptions
+def get_unused_osg_id():
+    """ Generate an unused OSG ID """
+    MAX_TRIES = 1000 # Give up after hitting x collisions in a row
+    ID_LENGTH = 9
+
+    with DbSession() as session:
+        all_ids = set(session.scalars(select(Institution.topology_identifier)).all())
+        for _ in range(MAX_TRIES):
+            short_id = ''.join([choice(ascii_lowercase + digits) for _ in range(ID_LENGTH)])
+            next_id = f"{OSG_ID_PREFIX}{short_id}"
+            if not next_id in all_ids:
+                return next_id
+
+        raise HTTPException(500, "Unable to generate new unique ID")
