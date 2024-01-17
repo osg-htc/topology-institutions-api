@@ -31,6 +31,7 @@ def _full_osg_id(short_id):
     return f"{OSG_ID_PREFIX}{short_id}"
 
 
+@sqlalchemy_http_exceptions
 def get_institutions() -> List[InstitutionModel]:
     """ Get a sorted list of every valid institution """
     with DbSession() as session:
@@ -39,6 +40,7 @@ def get_institutions() -> List[InstitutionModel]:
             .order_by(Institution.name)).all()
         return [InstitutionModel.from_institution(i) for i in institutions]
 
+@sqlalchemy_http_exceptions
 def get_institution(short_id: str) -> InstitutionModel:
     """ Get an existing institution by ID """
     with DbSession() as session:
@@ -81,6 +83,7 @@ def update_institution(short_id: str, institution: InstitutionModel, author: OID
         to_update.updated_by = author.id
         session.commit()
 
+@sqlalchemy_http_exceptions
 def invalidate_institution(short_id: str, author: OIDCUserInfo):
     """ Mark an existing institution as invalid by id """
     with DbSession() as session:
