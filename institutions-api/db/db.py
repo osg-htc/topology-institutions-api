@@ -52,15 +52,19 @@ def get_institution(short_id: str) -> InstitutionModel:
 
         return InstitutionModel.from_institution(institution)
 
+@sqlalchemy_http_exceptions
 def add_institution(institution: InstitutionModel, author: OIDCUserInfo):
     """ Create a new institution """
     with DbSession() as session:
         inst = Institution(institution.name, institution.id, author.id)
-        if institution.ror_id:
-            inst.identifiers = [InstitutionIdentifier(_ror_id_type(session), institution.ror_id)]
         session.add(inst)
+        if institution.ror_id:
+            ror_id = InstitutionIdentifier(_ror_id_type(session), institution.ror_id, inst.id)
+            session.add(ror_id)
+
         session.commit()
 
+@sqlalchemy_http_exceptions
 def update_institution(short_id: str, institution: InstitutionModel, author: OIDCUserInfo):
     """ Update an existing institution """
     with DbSession() as session:

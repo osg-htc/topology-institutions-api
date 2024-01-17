@@ -36,6 +36,7 @@ class Institution(Base):
 
 
     def __init__(self, name, topology_identifier, created_by):
+        self.id = uuid4()
         self.name = name
         self.topology_identifier = topology_identifier
         self.created_by = created_by
