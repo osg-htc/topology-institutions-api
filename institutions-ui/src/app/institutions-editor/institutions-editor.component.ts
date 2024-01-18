@@ -35,10 +35,25 @@ export class InstitutionsEditorComponent implements OnInit {
   ngOnInit(): void {
     if(this.institutionId) {
       this.instService.getInstitutionDetails(this.institutionId).subscribe(inst=>this.institution=inst)
+    } else {
+      this.instService.getNextInstitutionId().subscribe(({next_id})=>this.institution.id = next_id)
     }
   }
 
+  extractErrorMessage(err: any) {
+    // Try to extract a meaningful error message out of the object returned by the server
+    return err?.error?.detail[0]?.msg || err?.error?.detail || err.message 
+  }
+
+  sanitizeFormData() {
+    // clean up form data prior to submission
+    let {name, id, ror_id } = this.institution
+    this.institution = { name: name.trim(), id: id.trim(), ror_id: ror_id?.trim() }
+  }
+
   submitInstitution(): void {
+    this.sanitizeFormData()
+
     let submitAction;
     if(this.institutionId) {
       submitAction = this.instService.updateInstitution(this.institutionId, this.institution)
@@ -48,14 +63,14 @@ export class InstitutionsEditorComponent implements OnInit {
 
     submitAction.subscribe({
       next: () => this.router.navigate(['/']),
-      error: (err) => this.errorMessage = err.message || err.msg
+      error: (err) => this.errorMessage = this.extractErrorMessage(err) 
     })
   }
 
   deleteInstitution(): void {
     this.instService.deleteInstitution(this.institutionId!).subscribe({
       next: () => this.router.navigate(['/']),
-      error: (err) => this.errorMessage = err.message || err.msg
+      error: (err) => this.errorMessage = this.extractErrorMessage(err)
     })
   }
 

@@ -36,10 +36,13 @@ class Institution(Base):
 
 
     def __init__(self, name, topology_identifier, created_by):
+        self.id = uuid4()
         self.name = name
         self.topology_identifier = topology_identifier
         self.created_by = created_by
 
+    def has_id_of_type(self, id_type: IdentifierType):
+        return any(i.identifier_type_id == id_type.id for i in self.identifiers)
 
 
 class InstitutionIdentifier(Base):

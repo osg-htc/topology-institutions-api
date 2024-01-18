@@ -31,12 +31,12 @@ def with_error_logging(func):
 @prefix_router.get('/institution_ids')
 @with_error_logging
 def get_valid_institutions():
-    return db.get_institutions()
+    return db.get_valid_institutions()
 
 @prefix_router.get('/institutions/{institution_id}')
 @with_error_logging
 def get_institution_details(institution_id: str):
-    return db.get_institution(institution_id)
+    return db.get_institution_details(institution_id)
 
 
 @prefix_router.post('/institutions')
@@ -51,12 +51,15 @@ def update_institution(institution_id: str, institution: InstitutionModel, reque
     db.update_institution(institution_id, institution, OIDCUserInfo(request))
     return "ok"
 
-
-
 @prefix_router.delete('/institutions/{institution_id}')
 @with_error_logging
 def invalidate_institution(institution_id: str, request: Request):
     db.invalidate_institution(institution_id, OIDCUserInfo(request))
     return "ok"
+
+@prefix_router.get('/next_institution_id')
+@with_error_logging
+def get_next_institution_id():
+    return { "next_id": db.get_unused_osg_id() }
 
 app.include_router(prefix_router)

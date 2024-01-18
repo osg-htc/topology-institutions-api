@@ -1,6 +1,6 @@
 import { Injectable } from "@angular/core";
 import { HttpClient } from "@angular/common/http";
-import { Institution } from "./institutions.models"; 
+import { Institution, NextId } from "./institutions.models"; 
 
 const BASE_URL = '/api'
 
@@ -8,6 +8,9 @@ const BASE_URL = '/api'
   providedIn: 'root',
 })
 export class InstitutionsService {
+
+  constructor(private http: HttpClient) {}
+
   shortId(institutionId: String) {
     // TODO this is a kludge to workaround difficulties with url encoding the full
     // OSG ID. It would be preferable in the future to be able to pass the full ID rather
@@ -23,8 +26,6 @@ export class InstitutionsService {
     return this.http.put(`${BASE_URL}/institutions/${this.shortId(institutionId)}`, institution)
   }
 
-  constructor(private http: HttpClient) {}
-
   getInstitutions() {
     return this.http.get<Institution[]>(`${BASE_URL}/institution_ids`)
   }
@@ -35,6 +36,10 @@ export class InstitutionsService {
 
   deleteInstitution(institutionId: string) {
     return this.http.delete(`${BASE_URL}/institutions/${this.shortId(institutionId)}`);
+  }
+
+  getNextInstitutionId() {
+    return this.http.get<NextId>(`${BASE_URL}/next_institution_id`)
   }
 
 

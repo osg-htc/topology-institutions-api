@@ -22,7 +22,7 @@ class InstitutionModel(BaseModel):
 
     @model_validator(mode='after')
     def check_id_format(self):
-        assert self.name # non-null, non-empty
-        assert self.id.startswith(OSG_ID_PREFIX) # starting with the appropriate prefix
-        assert (not self.ror_id) or self.ror_id.startswith(ROR_ID_PREFIX) # empty, or starting with the appropriate prefix
+        assert self.name, "Name must be non-empty"
+        assert self.id.startswith(OSG_ID_PREFIX), f"OSG ID must start with '{OSG_ID_PREFIX}'"
+        assert (not self.ror_id) or self.ror_id.startswith(ROR_ID_PREFIX), f"ROR ID must be empty or start with '{ROR_ID_PREFIX}'"
         return self
