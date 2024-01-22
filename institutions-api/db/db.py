@@ -5,6 +5,7 @@ import urllib.parse
 from .db_models import *
 from .error_wrapper import sqlalchemy_http_exceptions
 from ..util.oidc_utils import OIDCUserInfo
+from ..util.ror_utils import validate_ror_id
 from ..models.api_models import InstitutionModel, OSG_ID_PREFIX
 from secrets import choice
 from string import ascii_lowercase, digits
@@ -69,6 +70,7 @@ def get_institution_details(short_id: str) -> InstitutionModel:
 @sqlalchemy_http_exceptions
 def add_institution(institution: InstitutionModel, author: OIDCUserInfo):
     """ Create a new institution """
+    validate_ror_id(institution.ror_id)
     with DbSession() as session:
         topology_id = _get_unused_osg_id(session)
         inst = Institution(institution.name, topology_id, author.id)
@@ -101,6 +103,7 @@ def _update_institution_ror_id(session: Session, institution: Institution, ror_i
 @sqlalchemy_http_exceptions
 def update_institution(short_id: str, institution: InstitutionModel, author: OIDCUserInfo):
     """ Update an existing institution """
+    validate_ror_id(institution.ror_id)
     with DbSession() as session:
         to_update = session.scalar(select(Institution)
             .where(Institution.topology_identifier == _full_osg_id(short_id)))
