@@ -20,7 +20,7 @@ export class InstitutionsEditorComponent implements OnInit {
 
   institutionId?: string;
 
-  institution: Institution = {name:'', id: this.OSG_ID_PREFIX , ror_id: this.ROR_ID_PREFIX };
+  institution: Institution = {name:'', id: '' , ror_id: this.ROR_ID_PREFIX };
 
   errorMessage?: string;
 
@@ -35,9 +35,7 @@ export class InstitutionsEditorComponent implements OnInit {
   ngOnInit(): void {
     if(this.institutionId) {
       this.instService.getInstitutionDetails(this.institutionId).subscribe(inst=>this.institution=inst)
-    } else {
-      this.instService.getNextInstitutionId().subscribe(({next_id})=>this.institution.id = next_id)
-    }
+    } 
   }
 
   extractErrorMessage(err: any) {
@@ -47,8 +45,8 @@ export class InstitutionsEditorComponent implements OnInit {
 
   sanitizeFormData() {
     // clean up form data prior to submission
-    let {name, id, ror_id } = this.institution
-    this.institution = { name: name.trim(), id: id.trim(), ror_id: ror_id?.trim() }
+    let {name, ror_id } = this.institution
+    this.institution = { name: name.trim(), ror_id: ror_id?.trim() }
   }
 
   submitInstitution(): void {

@@ -38,9 +38,4 @@ export class InstitutionsService {
     return this.http.delete(`${BASE_URL}/institutions/${this.shortId(institutionId)}`);
   }
 
-  getNextInstitutionId() {
-    return this.http.get<NextId>(`${BASE_URL}/next_institution_id`)
-  }
-
-
 }

@@ -24,6 +24,6 @@ export class InstitutionsListComponent implements OnInit{
   }
 
   editRouteFor(inst: Institution) {
-    return `edit/${this.instService.shortId(inst.id)}`
+    return `edit/${this.instService.shortId(inst.id!)}`
   }
 }

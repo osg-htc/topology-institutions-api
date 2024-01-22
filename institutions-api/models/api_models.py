@@ -9,7 +9,7 @@ ROR_ID_PREFIX = "https://ror.org/"
 class InstitutionModel(BaseModel):
     """ API model for topology institutions """
     name: str = Field(..., description="The name of the institution")
-    id: str = Field(..., description="The institution's OSG ID")
+    id: Optional[str] = Field(None, description="The institution's OSG ID")
     ror_id: Optional[str] = Field(None, description="The institution's research organization registry id (https://ror.org/)")
 
     @classmethod
@@ -23,6 +23,6 @@ class InstitutionModel(BaseModel):
     @model_validator(mode='after')
     def check_id_format(self):
         assert self.name, "Name must be non-empty"
-        assert self.id.startswith(OSG_ID_PREFIX), f"OSG ID must start with '{OSG_ID_PREFIX}'"
+        assert (not self.id) or self.id.startswith(OSG_ID_PREFIX), f"OSG ID must start with '{OSG_ID_PREFIX}'"
         assert (not self.ror_id) or self.ror_id.startswith(ROR_ID_PREFIX), f"ROR ID must be empty or start with '{ROR_ID_PREFIX}'"
         return self

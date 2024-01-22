@@ -30,6 +30,20 @@ def _full_osg_id(short_id):
     """ Get the full osg-htc url of an institution based on its ID suffix """
     return f"{OSG_ID_PREFIX}{short_id}"
 
+def _get_unused_osg_id(session: Session):
+    """ Generate an unused OSG ID """
+    MAX_TRIES = 1000 # Give up after hitting x collisions in a row
+    ID_LENGTH = 12
+
+    # TODO actually guaranteeing uniqueness here might be a bit overkill based on ID length
+    all_ids = set(session.scalars(select(Institution.topology_identifier)).all())
+    for _ in range(MAX_TRIES):
+        short_id = ''.join([choice(ascii_lowercase + digits) for _ in range(ID_LENGTH)])
+        next_id = f"{OSG_ID_PREFIX}{short_id}"
+        if not next_id in all_ids:
+            return next_id
+        raise HTTPException(500, "Unable to generate new unique ID")
+
 
 @sqlalchemy_http_exceptions
 def get_valid_institutions() -> List[InstitutionModel]:
@@ -56,7 +70,8 @@ def get_institution_details(short_id: str) -> InstitutionModel:
 def add_institution(institution: InstitutionModel, author: OIDCUserInfo):
     """ Create a new institution """
     with DbSession() as session:
-        inst = Institution(institution.name, institution.id, author.id)
+        topology_id = _get_unused_osg_id(session)
+        inst = Institution(institution.name, topology_id, author.id)
         session.add(inst)
         if institution.ror_id:
             ror_id = InstitutionIdentifier(_ror_id_type(session), institution.ror_id, inst.id)
@@ -108,19 +123,3 @@ def invalidate_institution(short_id: str, author: OIDCUserInfo):
         to_invalidate.valid = False
         to_invalidate.updated_by = author.id
         session.commit()
-
-@sqlalchemy_http_exceptions
-def get_unused_osg_id():
-    """ Generate an unused OSG ID """
-    MAX_TRIES = 1000 # Give up after hitting x collisions in a row
-    ID_LENGTH = 9
-
-    with DbSession() as session:
-        all_ids = set(session.scalars(select(Institution.topology_identifier)).all())
-        for _ in range(MAX_TRIES):
-            short_id = ''.join([choice(ascii_lowercase + digits) for _ in range(ID_LENGTH)])
-            next_id = f"{OSG_ID_PREFIX}{short_id}"
-            if not next_id in all_ids:
-                return next_id
-
-        raise HTTPException(500, "Unable to generate new unique ID")
