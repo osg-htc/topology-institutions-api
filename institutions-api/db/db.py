@@ -42,7 +42,7 @@ def _get_unused_osg_id(session: Session):
         next_id = f"{OSG_ID_PREFIX}{short_id}"
         if not next_id in all_ids:
             return next_id
-        raise HTTPException(500, "Unable to generate new unique ID")
+    raise HTTPException(500, "Unable to generate new unique ID")
 
 
 @sqlalchemy_http_exceptions
