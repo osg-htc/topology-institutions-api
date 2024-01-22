@@ -1,6 +1,7 @@
 from sqlalchemy import create_engine, select, delete
 from sqlalchemy.orm import sessionmaker, Session
 from os import environ
+from typing import Optional
 import urllib.parse
 from .db_models import *
 from .error_wrapper import sqlalchemy_http_exceptions
@@ -27,9 +28,13 @@ def _ror_id_type(session: Session) -> IdentifierType:
     """ Get the IdentifierType entity that corresponds to ROR ID """
     return session.scalars(select(IdentifierType).where(IdentifierType.name == ROR_ID_TYPE)).first()
 
-def _full_osg_id(short_id):
+def _full_osg_id(short_id: str):
     """ Get the full osg-htc url of an institution based on its ID suffix """
     return f"{OSG_ID_PREFIX}{short_id}"
+
+def _short_osg_id(full_id: str):
+    """ Get the full osg-htc url of an institution based on its ID suffix """
+    return full_id.replace(OSG_ID_PREFIX, '')
 
 def _get_unused_osg_id(session: Session):
     """ Generate an unused OSG ID """
@@ -45,6 +50,12 @@ def _get_unused_osg_id(session: Session):
             return next_id
     raise HTTPException(500, "Unable to generate new unique ID")
 
+def _check_for_deactivated_institution(session: Session, name: str) -> Optional[str]:
+    """ Check if a deactivated institution with the given name exists. Return its short ID if so.
+    Used for reactivation workflows
+    """
+    deactivated_inst = session.scalar(select(Institution).where(Institution.valid == False).where(Institution.name == name))
+    return _short_osg_id(deactivated_inst.topology_identifier) if deactivated_inst else None
 
 @sqlalchemy_http_exceptions
 def get_valid_institutions() -> List[InstitutionModel]:
@@ -72,6 +83,10 @@ def add_institution(institution: InstitutionModel, author: OIDCUserInfo):
     """ Create a new institution """
     validate_ror_id(institution.ror_id)
     with DbSession() as session:
+        if deactivated_id := _check_for_deactivated_institution(session, institution.name):
+            session.rollback()
+            return update_institution(deactivated_id, institution, author)
+
         topology_id = _get_unused_osg_id(session)
         inst = Institution(institution.name, topology_id, author.id)
         session.add(inst)
@@ -114,6 +129,7 @@ def update_institution(short_id: str, institution: InstitutionModel, author: OID
         to_update.name = institution.name
         _update_institution_ror_id(session, to_update, institution.ror_id)
         to_update.updated_by = author.id
+        to_update.valid = True
 
         session.commit()
 
