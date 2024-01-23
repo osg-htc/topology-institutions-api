@@ -57,9 +57,4 @@ def invalidate_institution(institution_id: str, request: Request):
     db.invalidate_institution(institution_id, OIDCUserInfo(request))
     return "ok"
 
-@prefix_router.get('/next_institution_id')
-@with_error_logging
-def get_next_institution_id():
-    return { "next_id": db.get_unused_osg_id() }
-
 app.include_router(prefix_router)

@@ -59,7 +59,6 @@ class InstitutionIdentifier(Base):
 
     identifier_type: Mapped["IdentifierType"] = relationship()
 
-
     def __init__(self, identifier_type: IdentifierType, identifier: str, institution_id: UUID = None):
         self.identifier_type_id = identifier_type.id
         self.identifier = identifier
