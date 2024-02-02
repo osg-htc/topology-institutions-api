@@ -1,15 +1,16 @@
 import Header from "./components/Header";
 import { Container } from "@mui/material";
 import InstitutionsTable from "./components/Table";
-import AddButton from "./components/AddButton";
+import CssBaseline from '@mui/material/CssBaseline';
 
 export default function Home() {
   return (
-    <Container maxWidth={false}>
+    <>
+    <CssBaseline />
+    <Container maxWidth="xl" sx={{ width: "100vw", height: "100vh", padding: 0 }} disableGutters>
       <Header />
-      <AddButton />
       <InstitutionsTable />
     </Container>
-    
+    </>
   );
 }

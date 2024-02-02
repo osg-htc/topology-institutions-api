@@ -11,7 +11,7 @@ const AddButton: React.FC = () => {
         <Button
             variant="contained"
             startIcon={<AddIcon />}
-            sx={{ marginY: "1em", padding: "1em" }}
+            sx={{ padding: "1em" }}
             onClick={handleClick}
         >
             Add Institution
