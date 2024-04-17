@@ -1,7 +1,7 @@
 FROM almalinux:9
 
 RUN yum update -y && \
-    yum install -y python3-pip httpd mod_auth_openidc mod_ssl python3-mod_wsgi && \
+    yum install -y python3-pip httpd mod_auth_openidc python3-mod_wsgi && \
     yum clean all && rm -rf /var/cache/yum/*
 
 # Add the apache VirtualHost, to setup the WSGI module for the app
