@@ -1,7 +1,7 @@
 from typing import Optional
 from fastapi import HTTPException
 import requests
-from ..models.api_models import ROR_ID_PREFIX
+from models.api_models import ROR_ID_PREFIX
 
 
 def validate_ror_id(ror_id: Optional[str]):
