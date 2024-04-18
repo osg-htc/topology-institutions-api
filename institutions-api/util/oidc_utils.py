@@ -9,8 +9,7 @@ class OIDCUserInfo:
     email: Optional[str]
 
     def __init__(self, request: Request):
-        environ = request.scope.get('wsgi_environ', {})
-        self.idp = environ.get('OIDC_CLAIM_idp_name', None)
-        self.id = environ.get('OIDC_CLAIM_osgid', None)
-        self.name = environ.get('OIDC_CLAIM_name', None)
-        self.email = environ.get('OIDC_CLAIM_email', None)
+        self.idp = request.headers.get('oidc_claim_idp_name', None)
+        self.id = request.headers.get('oidc_claim_osgid', None)
+        self.name = request.headers.get('oidc_claim_name', None)
+        self.email = request.headers.get('oidc_claim_email', None)

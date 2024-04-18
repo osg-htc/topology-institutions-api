@@ -4,6 +4,7 @@ from sqlalchemy.sql import func
 from sqlalchemy.orm import DeclarativeBase, mapped_column, relationship, Mapped
 from typing import List
 from uuid import uuid4
+from datetime import datetime
 
 class Base(DeclarativeBase):
     pass
@@ -40,6 +41,7 @@ class Institution(Base):
         self.name = name
         self.topology_identifier = topology_identifier
         self.created_by = created_by
+        self.created = datetime.now()
 
     def has_id_of_type(self, id_type: IdentifierType):
         return any(i.identifier_type_id == id_type.id for i in self.identifiers)

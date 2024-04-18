@@ -5,9 +5,9 @@ from typing import Optional
 import urllib.parse
 from .db_models import *
 from .error_wrapper import sqlalchemy_http_exceptions
-from ..util.oidc_utils import OIDCUserInfo
-from ..util.ror_utils import validate_ror_id
-from ..models.api_models import InstitutionModel, OSG_ID_PREFIX
+from util.oidc_utils import OIDCUserInfo
+from util.ror_utils import validate_ror_id
+from models.api_models import InstitutionModel, OSG_ID_PREFIX
 from secrets import choice
 from string import ascii_lowercase, digits
 # TODO not the best practice to return http errors from db layer
@@ -129,6 +129,7 @@ def update_institution(short_id: str, institution: InstitutionModel, author: OID
         to_update.name = institution.name
         _update_institution_ror_id(session, to_update, institution.ror_id)
         to_update.updated_by = author.id
+        to_update.updated = datetime.now()
         to_update.valid = True
 
         session.commit()
