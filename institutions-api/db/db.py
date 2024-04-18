@@ -129,6 +129,7 @@ def update_institution(short_id: str, institution: InstitutionModel, author: OID
         to_update.name = institution.name
         _update_institution_ror_id(session, to_update, institution.ror_id)
         to_update.updated_by = author.id
+        to_update.updated = datetime.now()
         to_update.valid = True
 
         session.commit()
