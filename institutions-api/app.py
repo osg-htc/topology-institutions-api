@@ -1,4 +1,5 @@
 from fastapi import FastAPI, HTTPException, Request, Header
+from fastapi.middleware.cors import CORSMiddleware
 from db import db
 from sqlalchemy import select, delete
 from db.db_models import Institution
@@ -11,6 +12,8 @@ from functools import wraps
 logger = logging.getLogger("default")
 
 app = FastAPI()
+app.add_middleware(CORSMiddleware, 
+    allow_origins=["*"], allow_credentials=False, allow_methods=["GET"], allow_headers=["*"])
 
 @app.get('/institution_ids')
 def get_valid_institutions():
