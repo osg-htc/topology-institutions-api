@@ -107,37 +107,49 @@ def add_ipeds_id_type():
             # Add the IPEDS identifier
             if iped_data:
 
-                identifier_id = conn.execute(text(f"""
-                    INSERT INTO institution_identifier (
-                        id, institution_id, identifier_type_id, identifier
-                    ) VALUES (
-                        '{uuid4()}', '{institute['id']}', '{unitid_identifier_id}', '{int(unit_id)}'
-                    ) RETURNING id
-                """)).fetchone()[0]
+                # Check if that institution already exists
+                existing_iped = conn.execute(text(f"""
+                    SELECT * FROM institution_ipeds_metadata WHERE institution_id = '{institute['id']}'
+                """)).fetchone()
 
-                ipeds_metadata = {
-                    "id": uuid4(),
-                    "institution_id": institute['id'],
-                    "institution_identifier_id": identifier_id,
-                    "website_address": iped_data["WEBADDR"],
-                    "historically_black_college_or_university": iped_data["HBCU"] == 1,  # One is True, 2 is False
-                    "tribal_college_or_university": iped_data['TRIBAL'] == 1,            # One is True, 2 is False
-                    "program_length": PROGRAM_LENGTH_MAPPING[str(iped_data['ICLEVEL'])],
-                    "control": CONTROL_MAPPING[str(iped_data['CONTROL'])],
-                    "state": iped_data['STABBR'],
-                    "institution_size": INSTITUTION_SIZE_MAPPING[str(iped_data['INSTSIZE'])]
-                }
+                if institute["latitude"] is None:
 
+                    conn.execute(text(f"""
+                        UPDATE institution SET latitude = {iped_data['LATITUDE']}, longitude = {iped_data['LONGITUD']} WHERE id = '{institute['id']}'
+                    """))
 
-                conn.execute(
-                    text(f"""
-                        INSERT INTO institution_ipeds_metadata (
-                            id, institution_id, institution_identifier_id, website_address, historically_black_college_or_university, tribal_college_or_university, program_length, control, state, institution_size
+                if not existing_iped:
+
+                    identifier_id = conn.execute(text(f"""
+                        INSERT INTO institution_identifier (
+                            id, institution_id, identifier_type_id, identifier
                         ) VALUES (
-                            :id, :institution_id, :institution_identifier_id, :website_address, :historically_black_college_or_university, :tribal_college_or_university, :program_length, :control, :state, :institution_size
-                        )
-                    """), ipeds_metadata
-                )
+                            '{uuid4()}', '{institute['id']}', '{unitid_identifier_id}', '{int(unit_id)}'
+                        ) RETURNING id
+                    """)).fetchone()[0]
+
+                    ipeds_metadata = {
+                        "id": uuid4(),
+                        "institution_id": institute['id'],
+                        "institution_identifier_id": identifier_id,
+                        "website_address": iped_data["WEBADDR"],
+                        "historically_black_college_or_university": iped_data["HBCU"] == 1,  # One is True, 2 is False
+                        "tribal_college_or_university": iped_data['TRIBAL'] == 1,            # One is True, 2 is False
+                        "program_length": PROGRAM_LENGTH_MAPPING[str(iped_data['ICLEVEL'])],
+                        "control": CONTROL_MAPPING[str(iped_data['CONTROL'])],
+                        "state": iped_data['STABBR'],
+                        "institution_size": INSTITUTION_SIZE_MAPPING[str(iped_data['INSTSIZE'])]
+                    }
+
+                    conn.execute(
+                        text(f"""
+                            INSERT INTO institution_ipeds_metadata (
+                                id, institution_id, institution_identifier_id, website_address, historically_black_college_or_university, tribal_college_or_university, program_length, control, state, institution_size
+                            ) VALUES (
+                                :id, :institution_id, :institution_identifier_id, :website_address, :historically_black_college_or_university, :tribal_college_or_university, :program_length, :control, :state, :institution_size
+                            )
+                        """), ipeds_metadata
+                    )
 
         conn.commit()
 
