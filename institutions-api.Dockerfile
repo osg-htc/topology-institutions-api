@@ -13,7 +13,7 @@ RUN pip install -r /srv/requirements.txt
 
 # Add the FastAPI application
 COPY startup.sh /bin/
-COPY institutions-api/ /srv/app/
+COPY institutions_api/ /srv/app/
 RUN chown -R apache:apache /srv/
 WORKDIR /srv/app/
 

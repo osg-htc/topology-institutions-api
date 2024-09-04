@@ -34,3 +34,19 @@ The docker image for the frontend can be built via
 
 The Apache configuration for the backend is expected to contain rules for proxying requests to the `ui/`
 route prefix to the frontend's deployment.
+
+### Deployment
+
+Running the following will build and deploy this image in a location that it can be pulled from Tiger.
+
+```shell
+TAG=0.2.0
+```
+
+```shell
+docker build -t hub.opensciencegrid.org/opensciencegrid/topology-institutions-api:$TAG -f institutions-api.Dockerfile .
+```
+
+```shell
+docker push hub.opensciencegrid.org/opensciencegrid/topology-institutions-api:$TAG
+```
