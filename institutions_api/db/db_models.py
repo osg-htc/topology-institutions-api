@@ -37,7 +37,7 @@ class Institution(Base):
     updated_by = Column(String)
 
     identifiers: Mapped[List["InstitutionIdentifier"]] = relationship(cascade="delete")
-    ipeds_metadata: Mapped["InstitutionIPEDSMetadata"] = relationship(back_populates="institution")
+    ipeds_metadata: Mapped["InstitutionIPEDSMetadata"] = relationship(back_populates="institution", lazy="joined")
 
 
     def __init__(self, name, topology_identifier, created_by):
