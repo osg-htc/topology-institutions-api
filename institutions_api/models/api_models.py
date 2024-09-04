@@ -1,6 +1,6 @@
 from pydantic import BaseModel, Field, model_validator
 from typing import Optional, Literal
-from db.db_models import Institution
+from institutions_api.db.db_models import Institution
 
 OSG_ID_PREFIX = "https://osg-htc.org/iid/"
 ROR_ID_PREFIX = "https://ror.org/"

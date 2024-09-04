@@ -12,7 +12,7 @@ from functools import wraps
 logger = logging.getLogger("default")
 
 app = FastAPI()
-app.add_middleware(CORSMiddleware, 
+app.add_middleware(CORSMiddleware,
     allow_origins=["*"], allow_credentials=False, allow_methods=["GET"], allow_headers=["*"])
 
 @app.get('/institution_ids')
@@ -38,3 +38,7 @@ def update_institution(institution_id: str, institution: InstitutionModel, reque
 def invalidate_institution(institution_id: str, request: Request):
     db.invalidate_institution(institution_id, OIDCUserInfo(request))
     return "ok"
+
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8089)

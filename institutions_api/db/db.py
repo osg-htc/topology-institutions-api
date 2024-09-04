@@ -5,9 +5,9 @@ from typing import Optional
 import urllib.parse
 from .db_models import *
 from .error_wrapper import sqlalchemy_http_exceptions
-from util.oidc_utils import OIDCUserInfo
-from util.ror_utils import validate_ror_id
-from models.api_models import InstitutionModel, OSG_ID_PREFIX
+from institutions_api.util.oidc_utils import OIDCUserInfo
+from institutions_api.util.ror_utils import validate_ror_id
+from institutions_api.models.api_models import InstitutionModel, OSG_ID_PREFIX
 from secrets import choice
 from string import ascii_lowercase, digits
 # TODO not the best practice to return http errors from db layer
@@ -102,7 +102,7 @@ def _update_institution_ror_id(session: Session, institution: Institution, ror_i
     """
     ror_id_type = _ror_id_type(session)
     if not ror_id:
-        # delete any existing ror ids if null in the 
+        # delete any existing ror ids if null in the
         session.execute(delete(InstitutionIdentifier)
             .where(InstitutionIdentifier.institution_id == institution.id)
             .where(InstitutionIdentifier.identifier_type_id == ror_id_type.id))
@@ -125,7 +125,7 @@ def update_institution(short_id: str, institution: InstitutionModel, author: OID
 
         if to_update is None:
             return HTTPException(404, f"No institution found with id {short_id}")
-        
+
         to_update.name = institution.name
         _update_institution_ror_id(session, to_update, institution.ror_id)
         to_update.updated_by = author.id
