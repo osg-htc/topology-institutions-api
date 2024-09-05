@@ -50,3 +50,7 @@ docker build -t hub.opensciencegrid.org/opensciencegrid/topology-institutions-ap
 ```shell
 docker push hub.opensciencegrid.org/opensciencegrid/topology-institutions-api:$TAG
 ```
+
+```shell
+docker run --env-file .env hub.opensciencegrid.org/opensciencegrid/topology-institutions-api:0.2.0
+```
