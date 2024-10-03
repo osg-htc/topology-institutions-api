@@ -8,13 +8,16 @@ from institutions_api.util.oidc_utils import OIDCUserInfo
 
 @pytest.fixture
 def session():
-    pass
+    session = db.Session()
+    yield session
+    session.rollback() # rollback after every test
+    session.close()
 
 class TestDBFunctions:
 
     def mock_request(self):
         """Create a mock request with OIDC headers"""
-        mock_request = Mock(spec=Request)
+        mock_request = Mock(spec=Request) # Mock a request object
         mock_request.headers = {
             "oidc_claim_idp_name": "TestIDP",
             "oidc_claim_osgid": "test_user",
@@ -46,24 +49,29 @@ class TestDBFunctions:
     def test_add_institution(self, session):
         """test whether adding a new institution works"""
 
-        mock_request = self.mock_request()
+        mock_request = self.mock_request() # Mock a request object
         user_info = OIDCUserInfo(mock_request)
-        new_institution = InstitutionModel(name="test", ror_id="https://ror.org/05xs36f43")
+
+        new_institution = InstitutionModel(name="test1", ror_id="https://ror.org/05ap1zt54")
         db.add_institution(new_institution, user_info)
         assert True
 
     def test_update_institution(self, session):
         """test whether updating the institution works"""
-        mock_request = self.mock_request()
+
+        mock_request = self.mock_request() # Mock a request object
         user_info = OIDCUserInfo(mock_request)
+
         updated_institution_data = InstitutionModel(name="test", ror_id="https://ror.org/05xs36f43")
         db.update_institution("djdiowajda", updated_institution_data, user_info)
         assert True
 
     def test_invalidate_institution(self, session):
         """test whether invalidation of the institution works"""
-        mock_request = self.mock_request()
+
+        mock_request = self.mock_request() # Mock a request object
         user_info = OIDCUserInfo(mock_request)
 
         db.invalidate_institution("3yiehdw3bef5", user_info)
         assert True
+
