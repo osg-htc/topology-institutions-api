@@ -8,3 +8,8 @@ touch $ACCESS_LOG && tail -f $ACCESS_LOG &
 
 uvicorn institutions_api.app:app --host 0.0.0.0 --port 8089 &
 httpd -D FOREGROUND
+
+export PATH="$HOME/.pyenv/bin:$PATH"
+eval "$(pyenv init --path)"
+eval "$(pyenv init -)"
+eval "$(pyenv virtualenv-init -)"
