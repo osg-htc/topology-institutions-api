@@ -81,7 +81,6 @@ def get_institution_details(short_id: str) -> InstitutionModel:
 @sqlalchemy_http_exceptions
 def add_institution(institution: InstitutionModel, author: OIDCUserInfo):
     """ Create a new institution """
-    validate_ror_id(institution.ror_id)
     with DbSession() as session:
         if deactivated_id := _check_for_deactivated_institution(session, institution.name):
             session.rollback()
