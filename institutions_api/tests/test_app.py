@@ -45,7 +45,7 @@ class TestAPIEndpoints:
     def test_update_institution(self, api_client):
         """test whether updating an institution works"""
         update_data = {
-            "name": "dawda",
+            "name": "Academia Sinica",
             "ror_id": "https://ror.org/04zdhre16"
         }
         response = api_client.put("/institutions/3yiehdw3bef5", json=update_data)
