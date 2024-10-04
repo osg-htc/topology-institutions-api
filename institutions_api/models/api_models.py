@@ -1,6 +1,10 @@
-from pydantic import BaseModel, Field, model_validator
-from typing import Optional, Literal
+from http.client import HTTPException
+
+from pydantic import BaseModel, Field, model_validator, field_validator
+from typing import Optional
 from institutions_api.db.db_models import Institution
+from institutions_api.util.load_csv import load_valid_unitids
+from institutions_api.util.ror_utils import validate_ror_id
 
 OSG_ID_PREFIX = "https://osg-htc.org/iid/"
 ROR_ID_PREFIX = "https://ror.org/"
@@ -50,3 +54,21 @@ class InstitutionModel(BaseModel):
         assert (not self.id) or self.id.startswith(OSG_ID_PREFIX), f"OSG ID must start with '{OSG_ID_PREFIX}'"
         assert (not self.ror_id) or self.ror_id.startswith(ROR_ID_PREFIX), f"ROR ID must be empty or start with '{ROR_ID_PREFIX}'"
         return self
+
+    @field_validator('ror_id')
+    @classmethod
+    def validate_ror(cls, ror_id: Optional[str]):
+        validate_ror_id(ror_id)
+        return ror_id
+
+    @field_validator('unitid')
+    @classmethod
+    def validate_unit_id(cls, unitid: Optional[str]):
+        if unitid and (not unitid.isdigit() or len(unitid) != 6):
+            raise ValueError("Invalid unit ID: must be a 6-digit number")
+        unitid_data_dict = load_valid_unitids('institutions_api/db/migrations/add_institution_metadata_0/data/hd2023.csv')
+        if unitid and unitid not in unitid_data_dict:
+            raise ValueError("Invalid unit ID: not found in the IPEDS data system")
+        return unitid
+
+
