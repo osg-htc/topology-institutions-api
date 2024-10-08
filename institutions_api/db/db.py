@@ -6,7 +6,6 @@ import urllib.parse
 from .db_models import *
 from .error_wrapper import sqlalchemy_http_exceptions
 from institutions_api.util.oidc_utils import OIDCUserInfo
-from institutions_api.util.ror_utils import validate_ror_id
 from institutions_api.models.api_models import InstitutionModel, OSG_ID_PREFIX
 from secrets import choice
 from string import ascii_lowercase, digits
@@ -117,7 +116,6 @@ def _update_institution_ror_id(session: Session, institution: Institution, ror_i
 @sqlalchemy_http_exceptions
 def update_institution(short_id: str, institution: InstitutionModel, author: OIDCUserInfo):
     """ Update an existing institution """
-    validate_ror_id(institution.ror_id)
     with DbSession() as session:
         to_update = session.scalar(select(Institution)
             .where(Institution.topology_identifier == _full_osg_id(short_id)))

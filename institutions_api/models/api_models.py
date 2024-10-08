@@ -1,14 +1,9 @@
-from http.client import HTTPException
-
 from pydantic import BaseModel, Field, model_validator, field_validator
 from typing import Optional
 from institutions_api.db.db_models import Institution
 from institutions_api.util.load_csv import load_valid_unitids
 from institutions_api.util.ror_utils import validate_ror_id
-
-OSG_ID_PREFIX = "https://osg-htc.org/iid/"
-ROR_ID_PREFIX = "https://ror.org/"
-
+from institutions_api.constants import ROR_ID_PREFIX, OSG_ID_PREFIX
 
 class InstitutionIPEDSMetadataModel(BaseModel):
     website_address: Optional[str] = Field(None, description="The institution's website address")
