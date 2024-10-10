@@ -7,7 +7,7 @@ import pandas as pd
 
 from institutions_api.db.db import engine
 from institutions_api.db.metadata_mappings import INSTITUTION_SIZE_MAPPING, PROGRAM_LENGTH_MAPPING, CONTROL_MAPPING, IPEDS_TO_DB_MAP
-
+from institutions_api.util.load_csv import load_csv
 
 
 def update_existing_tables():
@@ -47,7 +47,8 @@ def add_ipeds_id_type():
     ror_to_unitid = ror_to_unitid_df.set_index("ror_id").to_dict(orient="index")
 
     # https://nces.ed.gov/ipeds/datacenter/DataFiles.aspx?year=2023
-    ipeds_data_df = pd.read_csv("institutions_api/db/migrations/add_institution_metadata_0/data/hd2023.csv", encoding='latin1')
+    file_path = "institutions_api/db/migrations/add_institution_metadata_0/data/hd2023.csv"
+    ipeds_data_df = load_csv(file_path)
     ipeds_data = ipeds_data_df.set_index("UNITID").to_dict(orient="index")
 
     with engine.connect() as conn:

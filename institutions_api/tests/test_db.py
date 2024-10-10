@@ -60,7 +60,7 @@ class TestDBFunctions:
         assert True
 
     def test_add_institution_with_unitid(self, session):
-        # Create a new institution with a unitid
+        # Create a new institution with an unitid
         mock_request = self.mock_request()  # Mock a request object
         user_info = OIDCUserInfo(mock_request)
 

@@ -1,4 +1,3 @@
-import pandas as pd
 from sqlalchemy import create_engine, select, delete
 from sqlalchemy.orm import sessionmaker, Session
 from os import environ
@@ -13,6 +12,7 @@ from string import ascii_lowercase, digits
 from institutions_api.db.metadata_mappings import INSTITUTION_SIZE_MAPPING, PROGRAM_LENGTH_MAPPING, CONTROL_MAPPING
 # TODO not the best practice to return http errors from db layer
 from fastapi import HTTPException
+from institutions_api.util.load_csv import load_csv
 
 # DB connection based on secrets populated by the crunchydata postgres operator
 engine = create_engine(
@@ -98,7 +98,7 @@ def add_institution(institution: InstitutionModel, author: OIDCUserInfo):
         if institution.unitid:
             # Load the unitid csv file
             file_path = "institutions_api/db/migrations/add_institution_metadata_0/data/hd2023.csv"
-            ipeds_data_df = pd.read_csv(file_path, encoding='latin1')
+            ipeds_data_df = load_csv(file_path)
 
             # Find the row in the IPEDS data that corresponds to the unit id
             ipeds_data_row = ipeds_data_df[ipeds_data_df['UNITID'] == int(institution.unitid)].iloc[0]
