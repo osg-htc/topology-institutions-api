@@ -1,7 +1,9 @@
+import uuid
 import pytest
 from fastapi import Request
 from institutions_api.db import db
 from unittest.mock import Mock
+
 from institutions_api.models.api_models import InstitutionModel
 from institutions_api.util.oidc_utils import OIDCUserInfo
 
@@ -52,7 +54,18 @@ class TestDBFunctions:
         mock_request = self.mock_request() # Mock a request object
         user_info = OIDCUserInfo(mock_request)
 
-        new_institution = InstitutionModel(name="test1", ror_id="https://ror.org/05ap1zt54")
+        unique_name = f"test_institution_{uuid.uuid4().hex[:8]}"
+        new_institution = InstitutionModel(name=unique_name, ror_id="https://ror.org/05ap1zt54")
+        db.add_institution(new_institution, user_info)
+        assert True
+
+    def test_add_institution_with_unitid(self, session):
+        # Create a new institution with a unitid
+        mock_request = self.mock_request()  # Mock a request object
+        user_info = OIDCUserInfo(mock_request)
+
+        unique_name = f"test_institution_{uuid.uuid4().hex[:8]}"
+        new_institution = InstitutionModel(name=unique_name, ror_id="https://ror.org/05ap1zt54", unitid="366632")
         db.add_institution(new_institution, user_info)
         assert True
 

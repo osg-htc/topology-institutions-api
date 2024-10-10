@@ -1,10 +1,11 @@
-from pydantic import BaseModel, Field, model_validator
-from typing import Optional, Literal
+import os.path
+
+import pandas as pd
+from pydantic import BaseModel, Field, model_validator, field_validator
+from typing import Optional
 from institutions_api.db.db_models import Institution
-
-OSG_ID_PREFIX = "https://osg-htc.org/iid/"
-ROR_ID_PREFIX = "https://ror.org/"
-
+from institutions_api.util.ror_utils import validate_ror_id
+from institutions_api.constants import ROR_ID_PREFIX, OSG_ID_PREFIX
 
 class InstitutionIPEDSMetadataModel(BaseModel):
     website_address: Optional[str] = Field(None, description="The institution's website address")
@@ -50,3 +51,39 @@ class InstitutionModel(BaseModel):
         assert (not self.id) or self.id.startswith(OSG_ID_PREFIX), f"OSG ID must start with '{OSG_ID_PREFIX}'"
         assert (not self.ror_id) or self.ror_id.startswith(ROR_ID_PREFIX), f"ROR ID must be empty or start with '{ROR_ID_PREFIX}'"
         return self
+
+    @field_validator('ror_id')
+    @classmethod
+    def validate_ror(cls, ror_id: Optional[str]):
+        validate_ror_id(ror_id)
+        return ror_id
+
+    @field_validator('unitid')
+    @classmethod
+    def validate_unit_id(cls, unitid: Optional[str]):
+
+        # check if the unitid is None
+        if unitid is None:
+            return unitid
+
+        # check if the unitid is a 6-digit number
+        if unitid and (not unitid.isdigit() or len(unitid) != 6):
+            raise ValueError("Invalid unit ID: must be a 6-digit number")
+
+        # check if the unitid exists in the IPEDS data system
+        file_path = "institutions_api/db/migrations/add_institution_metadata_0/data/hd2023.csv"
+        if not os.path.exists(file_path):
+            raise ValueError("IPEDS data file not found")
+
+        ipeds_data_df = pd.read_csv(file_path, encoding='latin1')
+
+        # Convert the UNITID column to string, however, this will take a while to convert
+        ipeds_data_df['UNITID'] = ipeds_data_df['UNITID'].astype(str)
+        ipeds_data = ipeds_data_df.set_index("UNITID").to_dict(orient="index")
+
+        # Check if the unitid exists in the dictionary keys
+        if unitid not in ipeds_data:
+            raise ValueError("Invalid unit ID: not found in the IPEDS data system")
+        return unitid
+
+

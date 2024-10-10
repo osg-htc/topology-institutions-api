@@ -1,3 +1,5 @@
+import uuid
+
 import pytest
 from fastapi.testclient import TestClient
 from institutions_api.app import app
@@ -26,8 +28,10 @@ class TestAPIEndpoints:
 
     def test_post_institution(self, api_client):
         """test whether posting an institution works"""
+        unique_name = f"test_institution_{uuid.uuid4().hex[:8]}"
+
         new_institution = {
-            "name": "Test",
+            "name": unique_name,
             "id": "https://osg-htc.org/iid/12345",
             "ror_id": "https://ror.org/04achrx04",
             "unitid": None,
