@@ -1,3 +1,4 @@
+import pandas as pd
 from sqlalchemy import create_engine, select, delete
 from sqlalchemy.orm import sessionmaker, Session
 from os import environ
@@ -9,6 +10,7 @@ from institutions_api.util.oidc_utils import OIDCUserInfo
 from institutions_api.models.api_models import InstitutionModel, OSG_ID_PREFIX
 from secrets import choice
 from string import ascii_lowercase, digits
+from institutions_api.db.metadata_mappings import INSTITUTION_SIZE_MAPPING, PROGRAM_LENGTH_MAPPING, CONTROL_MAPPING
 # TODO not the best practice to return http errors from db layer
 from fastapi import HTTPException
 
@@ -91,6 +93,52 @@ def add_institution(institution: InstitutionModel, author: OIDCUserInfo):
         if institution.ror_id:
             ror_id = InstitutionIdentifier(_ror_id_type(session), institution.ror_id, inst.id)
             session.add(ror_id)
+
+        # Add IPEDS metadata if the institution has an unitid
+        if institution.unitid:
+            # Load the unitid csv file
+            file_path = "institutions_api/db/migrations/add_institution_metadata_0/data/hd2023.csv"
+            ipeds_data_df = pd.read_csv(file_path, encoding='latin1')
+
+            # Find the row in the IPEDS data that corresponds to the unit id
+            ipeds_data_row = ipeds_data_df[ipeds_data_df['UNITID'] == int(institution.unitid)].iloc[0]
+
+            # Convert np.float64 to native Python float
+            latitude = float(ipeds_data_row.get('LATITUDE', 0))
+            longitude = float(ipeds_data_row.get('LONGITUD', 0))
+
+            # Update latitude and longitude for the institution
+            inst.latitude = latitude
+            inst.longitude = longitude
+
+            # Create or retrieve the InstitutionIdentifier for unitid
+            unitid_identifier_type = session.scalar(select(IdentifierType).where(IdentifierType.name == 'unitid'))
+            if not unitid_identifier_type:
+                raise HTTPException(400, "IdentifierType for 'unitid' not found")
+
+            # Create a new InstitutionIdentifier for the unitid
+            institution_identifier = InstitutionIdentifier(
+                identifier_type=unitid_identifier_type,
+                identifier=institution.unitid,
+                institution_id=inst.id
+            )
+            session.add(institution_identifier)
+            session.flush()
+
+            # Create the InstitutionIPEDSMetadata object to store all the metadata
+            ipeds_metadata = InstitutionIPEDSMetadata(
+                website_address=ipeds_data_row['WEBADDR'],
+                historically_black_college_or_university=ipeds_data_row.get('HBCU') == 1,
+                tribal_college_or_university=ipeds_data_row.get('TRIBAL') == 1,
+                program_length=PROGRAM_LENGTH_MAPPING.get(str(ipeds_data_row.get('ICLEVEL'))),
+                control=CONTROL_MAPPING.get(str(ipeds_data_row.get('CONTROL'))),
+                state=ipeds_data_row.get('STABBR'),
+                institution_size=INSTITUTION_SIZE_MAPPING.get(str(ipeds_data_row.get('INSTSIZE'))),
+                institution=inst,
+                institution_identifier_id=institution_identifier.id
+            )
+            # Add the ipeds metadata to the session
+            session.add(ipeds_metadata)
 
         session.commit()
 

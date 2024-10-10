@@ -59,6 +59,16 @@ class TestDBFunctions:
         db.add_institution(new_institution, user_info)
         assert True
 
+    def test_add_institution_with_unitid(self, session):
+        # Create a new institution with a unitid
+        mock_request = self.mock_request()  # Mock a request object
+        user_info = OIDCUserInfo(mock_request)
+
+        unique_name = f"test_institution_{uuid.uuid4().hex[:8]}"
+        new_institution = InstitutionModel(name=unique_name, ror_id="https://ror.org/05ap1zt54", unitid="366632")
+        db.add_institution(new_institution, user_info)
+        assert True
+
     def test_update_institution(self, session):
         """test whether updating the institution works"""
 
