@@ -1,6 +1,8 @@
+import os
+from typing import Optional
+
 import pandas as pd
 from pydantic import BaseModel, Field, model_validator, field_validator
-from typing import Optional
 from institutions_api.db.db_models import Institution
 from institutions_api.util.ror_utils import validate_ror_id
 from institutions_api.constants import ROR_ID_PREFIX, OSG_ID_PREFIX
