@@ -9,9 +9,15 @@ from institutions_api.util.oidc_utils import OIDCUserInfo
 
 logger = logging.getLogger("default")
 
+
 app = FastAPI()
+
+origins = [
+    "http://localhost:3000",
+    ]
+
 app.add_middleware(CORSMiddleware,
-    allow_origins=["*"], allow_credentials=False, allow_methods=["GET"], allow_headers=["*"])
+    allow_origins=[origins], allow_credentials=False, allow_methods=["GET"], allow_headers=["*"])
 
 @app.get('/institution_ids')
 def get_valid_institutions():
