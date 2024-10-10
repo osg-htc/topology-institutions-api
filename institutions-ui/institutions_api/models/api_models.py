@@ -1,5 +1,3 @@
-import os.path
-
 import pandas as pd
 from pydantic import BaseModel, Field, model_validator, field_validator
 from typing import Optional
