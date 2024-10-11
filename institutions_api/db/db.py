@@ -14,6 +14,8 @@ from institutions_api.db.metadata_mappings import INSTITUTION_SIZE_MAPPING, PROG
 # TODO not the best practice to return http errors from db layer
 from fastapi import HTTPException
 
+from ..util.load_ipeds_data import load_ipeds_data
+
 # DB connection based on secrets populated by the crunchydata postgres operator
 engine = create_engine(
     f'postgresql://{environ["PG_USER"]}:{urllib.parse.quote_plus(environ["PG_PASSWORD"])}@{environ["PG_HOST"]}:{environ["PG_PORT"]}/{environ["PG_DATABASE"]}'
@@ -97,11 +99,11 @@ def add_institution(institution: InstitutionModel, author: OIDCUserInfo):
         # Add IPEDS metadata if the institution has an unitid
         if institution.unitid:
             # Load the unitid csv file
-            file_path = "institutions_api/db/migrations/add_institution_metadata_0/data/hd2023.csv"
-            ipeds_data_df = pd.read_csv(file_path, encoding='latin1')
+            ipeds_data = load_ipeds_data()  # Use cached data
+            ipeds_data_row = ipeds_data.get(institution.unitid)
 
-            # Find the row in the IPEDS data that corresponds to the unit id
-            ipeds_data_row = ipeds_data_df[ipeds_data_df['UNITID'] == int(institution.unitid)].iloc[0]
+            if ipeds_data_row is None:
+                raise ValueError("Invalid unit ID: not found in the IPEDS data system")
 
             # Convert np.float64 to native Python float
             latitude = float(ipeds_data_row.get('LATITUDE', 0))

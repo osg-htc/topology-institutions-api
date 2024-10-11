@@ -4,6 +4,7 @@ from typing import Optional
 import pandas as pd
 from pydantic import BaseModel, Field, model_validator, field_validator
 from institutions_api.db.db_models import Institution
+from institutions_api.util.load_ipeds_data import load_ipeds_data
 from institutions_api.util.ror_utils import validate_ror_id
 from institutions_api.constants import ROR_ID_PREFIX, OSG_ID_PREFIX
 
@@ -70,16 +71,7 @@ class InstitutionModel(BaseModel):
         if unitid and (not unitid.isdigit() or len(unitid) != 6):
             raise ValueError("Invalid unit ID: must be a 6-digit number")
 
-        # check if the unitid exists in the IPEDS data system
-        file_path = "institutions_api/db/migrations/add_institution_metadata_0/data/hd2023.csv"
-        if not os.path.exists(file_path):
-            raise ValueError("IPEDS data file not found")
-
-        ipeds_data_df = pd.read_csv(file_path, encoding='latin1')
-
-        # Convert the UNITID column to string, however, this will take a while to convert
-        ipeds_data_df['UNITID'] = ipeds_data_df['UNITID'].astype(str)
-        ipeds_data = ipeds_data_df.set_index("UNITID").to_dict(orient="index")
+        ipeds_data = load_ipeds_data()
 
         # Check if the unitid exists in the dictionary keys
         if unitid not in ipeds_data:
