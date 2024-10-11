@@ -27,7 +27,7 @@ const Page = () => {
 
     useEffect(() => {
     // Fetch data from the local JSON file in the public folder
-    fetch('/ui/institution_ids.json')
+    fetch('http://localhost:8089/institution_ids')
       .then((response) => response.json())
       .then((jsonData) => {
         setData(jsonData);
@@ -51,24 +51,33 @@ const Page = () => {
                           <TableCell>Control</TableCell>
                           <TableCell>State</TableCell>
                           <TableCell>Institution Size</TableCell>
+                          <TableCell>Longitude</TableCell>
+                            <TableCell>Latitude</TableCell>
                       </TableRow>
                   </TableHead>
                   <TableBody>
-                      {data.map((institution) => (
-                          <TableRow key={institution.id}>
-                              <TableCell>{institution.name}</TableCell>
-                              <TableCell>{institution.id}</TableCell>
-                              <TableCell>{institution.ipeds_metadata?.website_address || 'N/A'}</TableCell>
-                              <TableCell>{institution.ipeds_metadata?.historically_black_college_or_university === true ? 'Yes' : 'No'}</TableCell>
-                              <TableCell>{institution.ipeds_metadata?.tribal_college_or_university === true ? 'Yes' : 'No'}</TableCell>
-                              <TableCell>{institution.ipeds_metadata?.program_length || 'N/A'}</TableCell>
-                              <TableCell>{institution.ipeds_metadata?.control || 'N/A'}</TableCell>
-                              <TableCell>{institution.ipeds_metadata?.state || 'N/A'}</TableCell>
-                              <TableCell>{institution.ipeds_metadata?.institution_size || 'N/A'}</TableCell>
-                          </TableRow>
-                          )
-                          )}
-                  </TableBody>
+                    {data?.length > 0 ? (
+                        data.map((institution) => (
+                            <TableRow key={institution.id}>
+                                <TableCell>{institution.name}</TableCell>
+                                <TableCell>{institution.id}</TableCell>
+                                <TableCell>{institution.ipeds_metadata?.website_address || 'N/A'}</TableCell>
+                                <TableCell>{institution.ipeds_metadata?.historically_black_college_or_university ? 'Yes' : 'No'}</TableCell>
+                                <TableCell>{institution.ipeds_metadata?.tribal_college_or_university ? 'Yes' : 'No'}</TableCell>
+                                <TableCell>{institution.ipeds_metadata?.program_length || 'N/A'}</TableCell>
+                                <TableCell>{institution.ipeds_metadata?.control || 'N/A'}</TableCell>
+                                <TableCell>{institution.ipeds_metadata?.state || 'N/A'}</TableCell>
+                                <TableCell>{institution.ipeds_metadata?.institution_size || 'N/A'}</TableCell>
+                                <TableCell>{institution.longitude || 'N/A'}</TableCell>
+                                <TableCell>{institution.latitude || 'N/A'}</TableCell>
+                            </TableRow>
+                        ))
+                    ) : (
+                        <TableRow>
+                            <TableCell colSpan={11}>No data available</TableCell>
+                        </TableRow>
+                    )}
+                </TableBody>
               </Table>
           </TableContainer>
   );
