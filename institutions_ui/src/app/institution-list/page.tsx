@@ -1,5 +1,6 @@
 'use client'
 import React, {useEffect, useState} from "react";
+import axios from 'axios';
 import {Table, TableBody, TableCell, TableContainer, TableHead, TableRow} from "@mui/material";
 
 interface Institution {
@@ -27,10 +28,9 @@ const Page = () => {
 
     useEffect(() => {
     // Fetch data from the local JSON file in the public folder
-    fetch('http://localhost:8089/institution_ids')
-      .then((response) => response.json())
-      .then((jsonData) => {
-        setData(jsonData);
+    axios.get('http://localhost:8089/institution_ids')
+      .then((response) => {
+          setData(response.data);
       })
       .catch((error) => {
         console.error('Error loading data:', error);
