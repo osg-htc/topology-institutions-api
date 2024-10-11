@@ -1,13 +1,13 @@
-import {Button, Container} from "@mui/material";
-import Link from "next/link";
+import {Container} from "@mui/material";
+import NavBar from "./components/NavBar";
 
 export default function Home() {
   return (
-      <Container>
-        <Link href="/institution-list" passHref>
-          <Button color="success"> Institution List</Button>
-        </Link>
-      </Container>
+      <><NavBar/><Container>
+          <h1>
+              Welcome to the Typology Institutions UI
+          </h1>
+      </Container></>
   );
 }
 
