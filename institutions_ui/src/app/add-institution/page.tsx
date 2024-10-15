@@ -3,6 +3,19 @@ import NavBar from "@/app/components/NavBar";
 import {Button, Container, TextField, Typography} from "@mui/material";
 import {useState} from "react";
 import axios from "axios";
+import {Stack, Box, Paper} from "@mui/material";
+import { styled } from "@mui/material";
+
+const Item = styled(Paper)(({ theme }) => ({
+  backgroundColor: '#fff',
+  ...theme.typography.body2,
+  padding: theme.spacing(1),
+  textAlign: 'center',
+  color: theme.palette.text.secondary,
+  ...theme.applyStyles('dark', {
+    backgroundColor: '#1A2027',
+  }),
+}));
 
 
 export default function AddInstitution() {
@@ -14,6 +27,7 @@ export default function AddInstitution() {
     const [latitude, setLatitude] = useState("");
 
     const [errors, setErrors] = useState<{ [key: string]: string }>({});
+    const [disabled, setDisabled] = useState(false);
 
     const validateForm = () => {
         const validationErrors: { [key: string]: string } = {};
@@ -33,19 +47,31 @@ export default function AddInstitution() {
             validationErrors.rorId = "Invalid ROR ID format (must start with https://ror.org/)";
         }
 
-        // Check if longitude and latitude are numbers
-        if (longitude && isNaN(parseFloat(longitude))) {
-            validationErrors.longitude = "Longitude must be a number";
+        // only validate longitude and latitude if unitId is not present
+        if (!unitId){
+            // Check if longitude and latitude are numbers
+            if (longitude && isNaN(parseFloat(longitude))) {
+                validationErrors.longitude = "Longitude must be a number";
+            }
+
+            if (latitude && isNaN(parseFloat(latitude))) {
+                validationErrors.latitude = "Latitude must be a number";
+            }
         }
 
-        if (latitude && isNaN(parseFloat(latitude))) {
-            validationErrors.latitude = "Latitude must be a number";
-        }
 
         return validationErrors;
 
     }
 
+    const handleUnitIdChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setUnitId(e.target.value);
+        if(e.target.value.trim() !== "") {
+            setDisabled(true)
+        } else{
+            setDisabled(false)
+        }
+    }
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -86,10 +112,6 @@ export default function AddInstitution() {
                 alert("Failed to add institution. Please try again.");
             }
         } catch (error){
-            if(error.response){
-                console.error("Error response: ", error.response.data)
-                alert("An error occurred," + JSON.stringify(error.response.data))
-            }
             console.error("Failed to add institution:", error);
         }
 
@@ -98,78 +120,96 @@ export default function AddInstitution() {
     return (
         <>
             <NavBar/>
-            <Container>
-                <Typography variant="h4" gutterBottom>
-                    Add a new institution
-                </Typography>
-                <form onSubmit={handleSubmit}>
-                    <TextField
-                        required
-                        id="name"
-                        label="Institution Name"
-                        margin="normal"
-                        value={name}
-                        onChange={(e) => setName(e.target.value)}
-                        error={!!errors.name}
-                        helperText={errors.name}
-                    />
+            <Box>
+                <Stack>
+                    <Item>
+                        <Typography variant="h4" gutterBottom>
+                            Add a new institution
+                        </Typography>
+                    </Item>
+                        <form onSubmit={handleSubmit}>
+                            <Item>
+                                <TextField
+                                required
+                                id="name"
+                                label="Institution Name"
+                                margin="normal"
+                                value={name}
+                                onChange={(e) => setName(e.target.value)}
+                                error={!!errors.name}
+                                helperText={errors.name}
+                            />
+                            </Item>
+                            <Item>
+                                <TextField
+                                id="id"
+                                label="ID"
+                                margin="normal"
+                                value={id}
+                                onChange={(e) => setId(e.target.value)}
+                                error={!!errors.name}
+                                helperText={errors.name}
+                            />
+                            </Item>
+                            <Item>
+                                <TextField
+                                id="rorId"
+                                label="ROR ID"
+                                margin="normal"
+                                value={rorId}
+                                onChange={(e) => setRorId(e.target.value)}
+                                error={!!errors.rorId}
+                                helperText={errors.rorId}
+                            />
+                            </Item>
+                            <Item>
+                                <TextField
+                                id="unitId"
+                                label="Unit ID"
+                                margin="normal"
+                                value={unitId}
+                                onChange={handleUnitIdChange}
+                                error={!!errors.unitId}
+                                helperText={errors.unitId}
+                            />
+                            </Item>
+                            <Item>
+                                <TextField
+                                id="longitude"
+                                label="Longitude"
+                                margin="normal"
+                                value={longitude}
+                                onChange={(e) => setLongitude(e.target.value)}
+                                error={!!errors.longitude}
+                                disabled={disabled}
+                                helperText={errors.longitude}
+                            />
+                            </Item>
+                            <Item>
+                                <TextField
+                                id="latitude"
+                                label="Latitude"
+                                margin="normal"
+                                value={latitude}
+                                onChange={(e) => setLatitude(e.target.value)}
+                                error={!!errors.latitude}
+                                disabled={disabled}
+                                helperText={errors.latitude}
+                            />
+                            </Item>
+                            <Item>
+                                <Button variant="contained" color="primary" type="submit">
+                                Submit
+                                </Button>
+                            </Item>
+                        </form>
+                    <Item>
 
-                    <TextField
-                        id="id"
-                        label="ID"
-                        margin="normal"
-                        value={id}
-                        onChange={(e) => setId(e.target.value)}
-                        error={!!errors.name}
-                        helperText={errors.name}
-                    />
 
-                    <TextField
-                        id="rorId"
-                        label="ROR ID"
-                        margin="normal"
-                        value={rorId}
-                        onChange={(e) => setRorId(e.target.value)}
-                        error={!!errors.rorId}
-                        helperText={errors.rorId}
-                    />
+                    </Item>
 
-                    <TextField
-                        id="unitId"
-                        label="Unit ID"
-                        margin="normal"
-                        value={unitId}
-                        onChange={(e) => setUnitId(e.target.value)}
-                        error={!!errors.unitId}
-                        helperText={errors.unitId}
-                    />
-
-                    <TextField
-                        id="longitude"
-                        label="Longitude"
-                        margin="normal"
-                        value={longitude}
-                        onChange={(e) => setLongitude(e.target.value)}
-                        error={!!errors.longitude}
-                        helperText={errors.longitude}
-                    />
-
-                    <TextField
-                        id="latitude"
-                        label="Latitude"
-                        margin="normal"
-                        value={latitude}
-                        onChange={(e) => setLatitude(e.target.value)}
-                        error={!!errors.latitude}
-                        helperText={errors.latitude}
-                    />
-
-                    <Button variant="contained" color="primary" type="submit">
-                        Submit
-                    </Button>
-                </form>
-            </Container>
-
+                </Stack>
+            </Box>
         </>
 
     );
