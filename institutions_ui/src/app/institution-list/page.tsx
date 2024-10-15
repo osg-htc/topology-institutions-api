@@ -2,6 +2,7 @@
 import React, {useEffect, useState} from "react";
 import axios from 'axios';
 import {Table, TableBody, TableCell, TableContainer, TableHead, TableRow} from "@mui/material";
+import NavBar from "@/app/components/NavBar";
 
 interface Institution {
     id: string;
@@ -39,6 +40,7 @@ const Page = () => {
 
       return (
           <TableContainer>
+              <NavBar></NavBar>
               <Table>
                   <TableHead>
                       <TableRow>
