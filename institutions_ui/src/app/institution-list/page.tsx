@@ -1,8 +1,10 @@
 'use client'
 import React, {useEffect, useState} from "react";
 import axios from 'axios';
-import {Table, TableBody, TableCell, TableContainer, TableHead, TableRow} from "@mui/material";
+import EditIcon from '@mui/icons-material/Edit';
+import {IconButton, Table, TableBody, TableCell, TableContainer, TableHead, TableRow} from "@mui/material";
 import NavBar from "@/app/components/NavBar";
+import {router} from "next/client";
 
 interface Institution {
     id: string;
@@ -38,6 +40,10 @@ const Page = () => {
       });
   }, []);
 
+    const handleEditClick = (institutionId: string) => {
+        router.push(`/update-institution/${institutionId}`);
+    }
+
       return (
           <TableContainer>
               <NavBar></NavBar>
@@ -61,7 +67,11 @@ const Page = () => {
                     {data?.length > 0 ? (
                         data.map((institution) => (
                             <TableRow key={institution.id}>
-                                <TableCell>{institution.name}</TableCell>
+                                <TableCell>
+                                    <IconButton onClick={() => handleEditClick(institution.id)} aria-label="edit">
+                                        <EditIcon/>
+                                    </IconButton>
+                                    {institution.name}</TableCell>
                                 <TableCell>{institution.id}</TableCell>
                                 <TableCell>{institution.ipeds_metadata?.website_address || 'N/A'}</TableCell>
                                 <TableCell>{institution.ipeds_metadata?.historically_black_college_or_university ? 'Yes' : 'No'}</TableCell>
