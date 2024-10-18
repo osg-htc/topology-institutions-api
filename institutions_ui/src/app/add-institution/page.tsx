@@ -138,6 +138,7 @@ export default function AddInstitution() {
                                 onChange={(e) => setName(e.target.value)}
                                 error={!!errors.name}
                                 helperText={errors.name}
+                                sx={{width: '400px'}}
                             />
                             </Item>
                             <Item>
@@ -149,6 +150,7 @@ export default function AddInstitution() {
                                 onChange={(e) => setId(e.target.value)}
                                 error={!!errors.name}
                                 helperText={errors.name}
+                                sx={{width: '400px'}}
                             />
                             </Item>
                             <Item>
@@ -160,6 +162,7 @@ export default function AddInstitution() {
                                 onChange={(e) => setRorId(e.target.value)}
                                 error={!!errors.rorId}
                                 helperText={errors.rorId}
+                                sx={{width: '400px'}}
                             />
                             </Item>
                             <Item>
@@ -171,6 +174,7 @@ export default function AddInstitution() {
                                 onChange={handleUnitIdChange}
                                 error={!!errors.unitId}
                                 helperText={errors.unitId}
+                                sx={{width: '400px'}}
                             />
                             </Item>
                             <Item>
@@ -183,6 +187,7 @@ export default function AddInstitution() {
                                 error={!!errors.longitude}
                                 disabled={disabled}
                                 helperText={errors.longitude}
+                                sx={{width: '400px'}}
                             />
                             </Item>
                             <Item>
@@ -195,6 +200,7 @@ export default function AddInstitution() {
                                 error={!!errors.latitude}
                                 disabled={disabled}
                                 helperText={errors.latitude}
+                                sx={{width: '400px'}}
                             />
                             </Item>
                             <Item>
