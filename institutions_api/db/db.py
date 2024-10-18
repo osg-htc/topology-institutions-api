@@ -26,10 +26,15 @@ Base.metadata.create_all(engine)
 DbSession = sessionmaker(bind=engine)
 
 ROR_ID_TYPE = 'ror_id'
+UNIT_ID_TYPE = 'unitid'
 
 def _ror_id_type(session: Session) -> IdentifierType:
     """ Get the IdentifierType entity that corresponds to ROR ID """
     return session.scalars(select(IdentifierType).where(IdentifierType.name == ROR_ID_TYPE)).first()
+
+def _unit_id_type(session: Session) -> IdentifierType:
+    """ Get the IdentifierType entity that corresponds to unit ID """
+    return session.scalars(select(IdentifierType).where(IdentifierType.name == UNIT_ID_TYPE)).first()
 
 def _full_osg_id(short_id: str):
     """ Get the full osg-htc url of an institution based on its ID suffix """
@@ -125,7 +130,6 @@ def add_institution(institution: InstitutionModel, author: OIDCUserInfo):
                 institution_id=inst.id
             )
             session.add(institution_identifier)
-            session.flush()
 
             # Create the InstitutionIPEDSMetadata object to store all the metadata
             ipeds_metadata = InstitutionIPEDSMetadata(
@@ -163,6 +167,37 @@ def _update_institution_ror_id(session: Session, institution: Institution, ror_i
         # create a new ROR ID for the institution
         session.add(InstitutionIdentifier(ror_id_type, ror_id, institution.id))
 
+def _update_institution_unit_id(session: Session, institution: Institution, unit_id: str):
+    """ Handle updates to an institution's joined InstitutionIdentifier of type 'unitid'
+    based on the 'unitid' value passed in the API model
+    """
+
+    unit_id_type = _unit_id_type(session)
+
+    if not unit_id_type:
+        raise HTTPException(400, "IdentifierType for 'unitid' not found")
+
+    if not unit_id:
+        # delete any existing unit ids if null in the text fields
+        session.delete(institution.ipeds_metadata)
+        session.execute(delete(InstitutionIdentifier)
+            .where(InstitutionIdentifier.institution_id == institution.id)
+            .where(InstitutionIdentifier.identifier_type_id == unit_id_type.id))
+    else:
+        # Check if the institution already has a unitid
+        existing_unitid = [i for i in institution.identifiers if i.identifier_type_id == unit_id_type.id]
+
+        if existing_unitid:
+            # Update the existing unitid
+            existing_unitid[0].identifier = unit_id
+            session.add(existing_unitid[0])
+        else:
+            # Create a new InstitutionIdentifier for unitid if it doesn't exist
+            new_unitid = InstitutionIdentifier(identifier_type=unit_id_type, identifier=unit_id,
+                                               institution_id=institution.id)
+            session.add(new_unitid)
+
+
 @sqlalchemy_http_exceptions
 def update_institution(short_id: str, institution: InstitutionModel, author: OIDCUserInfo):
     """ Update an existing institution """
@@ -175,9 +210,13 @@ def update_institution(short_id: str, institution: InstitutionModel, author: OID
 
         to_update.name = institution.name
         _update_institution_ror_id(session, to_update, institution.ror_id)
+        _update_institution_unit_id(session, to_update, institution.unitid)
         to_update.updated_by = author.id
         to_update.updated = datetime.now()
         to_update.valid = True
+        to_update.latitude = institution.latitude
+        to_update.longitude = institution.longitude
+
 
         session.commit()
 
@@ -190,3 +229,6 @@ def invalidate_institution(short_id: str, author: OIDCUserInfo):
         to_invalidate.valid = False
         to_invalidate.updated_by = author.id
         session.commit()
+
+
+
