@@ -5,6 +5,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import {IconButton, Table, TableBody, TableCell, TableContainer, TableHead, TableRow} from "@mui/material";
 import NavBar from "@/app/components/NavBar";
 import {router} from "next/client";
+import {useRouter} from "next/navigation";
 
 interface Institution {
     id: string;
@@ -26,11 +27,12 @@ interface IpedsMetadata {
     institution_size: string;
 }
 
-const Page = () => {
+export default function InstitutionList (){
     const [data, setData] = useState<Institution[]>([]);
+    const router = useRouter();
 
     useEffect(() => {
-    // Fetch data from the local JSON file in the public folder
+    // Fetch data from the database
     axios.get('http://localhost:8089/institution_ids')
       .then((response) => {
           setData(response.data);
@@ -40,8 +42,15 @@ const Page = () => {
       });
   }, []);
 
-    const handleEditClick = (institutionId: string) => {
-        router.push(`/update-institution/${institutionId}`);
+    const extractShortId = (fullId: string) => {
+        const parts = fullId.split("/");
+        const shortId = parts[parts.length - 1];
+        return shortId.endsWith("/") ? shortId.slice(0, -1) : shortId;
+    };
+
+    const handleEdit = (shortId: string) => {
+        const id = extractShortId(shortId);
+        router.push(`/update-institution?id=${id}`);
     }
 
       return (
@@ -68,7 +77,7 @@ const Page = () => {
                         data.map((institution) => (
                             <TableRow key={institution.id}>
                                 <TableCell>
-                                    <IconButton onClick={() => handleEditClick(institution.id)} aria-label="edit">
+                                    <IconButton onClick={() => handleEdit(institution.id)} aria-label="edit">
                                         <EditIcon/>
                                     </IconButton>
                                     {institution.name}</TableCell>
@@ -95,5 +104,3 @@ const Page = () => {
   );
 
 }
-
-export default Page;
