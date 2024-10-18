@@ -64,8 +64,9 @@ class InstitutionModel(BaseModel):
     def validate_unit_id(cls, unitid: Optional[str]):
 
         # check if the unitid is None
-        if unitid is None:
+        if unitid is None or unitid == "":
             return unitid
+
 
         # check if the unitid is a 6-digit number
         if unitid and (not unitid.isdigit() or len(unitid) != 6):
