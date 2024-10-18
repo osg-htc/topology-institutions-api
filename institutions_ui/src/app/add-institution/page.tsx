@@ -60,8 +60,8 @@ export default function AddInstitution() {
         }
 
 
-        return validationErrors;
-
+        setErrors(validationErrors);
+        return Object.keys(validationErrors).length === 0;
     }
 
     const handleUnitIdChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -76,9 +76,7 @@ export default function AddInstitution() {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
-        const validationErrors = validateForm();
-        if (Object.keys(validationErrors).length > 0) {
-            setErrors(validationErrors);
+        if (!validateForm()){
             return
         }
 
@@ -130,24 +128,11 @@ export default function AddInstitution() {
                         <form onSubmit={handleSubmit}>
                             <Item>
                                 <TextField
-                                required
                                 id="name"
                                 label="Institution Name"
                                 margin="normal"
                                 value={name}
                                 onChange={(e) => setName(e.target.value)}
-                                error={!!errors.name}
-                                helperText={errors.name}
-                                sx={{width: '400px'}}
-                            />
-                            </Item>
-                            <Item>
-                                <TextField
-                                id="id"
-                                label="ID"
-                                margin="normal"
-                                value={id}
-                                onChange={(e) => setId(e.target.value)}
                                 error={!!errors.name}
                                 helperText={errors.name}
                                 sx={{width: '400px'}}
