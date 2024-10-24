@@ -1,4 +1,3 @@
-import pandas as pd
 from sqlalchemy import create_engine, select, delete
 from sqlalchemy.orm import sessionmaker, Session
 from os import environ
@@ -229,6 +228,3 @@ def invalidate_institution(short_id: str, author: OIDCUserInfo):
         to_invalidate.valid = False
         to_invalidate.updated_by = author.id
         session.commit()
-
-
-
