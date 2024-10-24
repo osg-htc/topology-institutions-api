@@ -1,9 +1,8 @@
 import os.path
-
-import pandas as pd
 from pydantic import BaseModel, Field, model_validator, field_validator
 from typing import Optional
 from institutions_api.db.db_models import Institution
+from institutions_api.util.load_csv import load_csv
 from institutions_api.util.ror_utils import validate_ror_id
 from institutions_api.constants import ROR_ID_PREFIX, OSG_ID_PREFIX
 
@@ -75,7 +74,7 @@ class InstitutionModel(BaseModel):
         if not os.path.exists(file_path):
             raise ValueError("IPEDS data file not found")
 
-        ipeds_data_df = pd.read_csv(file_path, encoding='latin1')
+        ipeds_data_df = load_csv(file_path)
 
         # Convert the UNITID column to string, however, this will take a while to convert
         ipeds_data_df['UNITID'] = ipeds_data_df['UNITID'].astype(str)
