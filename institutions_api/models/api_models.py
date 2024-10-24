@@ -1,10 +1,11 @@
-import os.path
-from pydantic import BaseModel, Field, model_validator, field_validator
 from typing import Optional
+
+from pydantic import BaseModel, Field, model_validator, field_validator
 from institutions_api.db.db_models import Institution
-from institutions_api.util.load_csv import load_csv
+from institutions_api.util.load_ipeds_data import load_ipeds_data
 from institutions_api.util.ror_utils import validate_ror_id
 from institutions_api.constants import ROR_ID_PREFIX, OSG_ID_PREFIX
+
 
 class InstitutionIPEDSMetadataModel(BaseModel):
     website_address: Optional[str] = Field(None, description="The institution's website address")
@@ -19,7 +20,8 @@ class InstitutionIPEDSMetadataModel(BaseModel):
     class Config:
         orm_mode = True
 
-class InstitutionModel(BaseModel):
+
+class InstitutionBaseModel(BaseModel):
     """ API model for topology institutions """
     name: str = Field(..., description="The name of the institution")
     id: Optional[str] = Field(None, description="The institution's OSG ID")
@@ -33,7 +35,7 @@ class InstitutionModel(BaseModel):
     def from_institution(cls, inst: Institution) -> "InstitutionModel":
         ror_ids = [i.identifier for i in inst.identifiers if i.identifier_type.name == 'ror_id']
         unitids = [i.identifier for i in inst.identifiers if i.identifier_type.name == 'unitid']
-        return InstitutionModel(
+        return InstitutionBaseModel(
             name=inst.name,
             id=inst.topology_identifier,
             ror_id=ror_ids[0] if ror_ids else None,
@@ -43,6 +45,9 @@ class InstitutionModel(BaseModel):
             ipeds_metadata=InstitutionIPEDSMetadataModel(**inst.ipeds_metadata.__dict__) if inst.ipeds_metadata else None
         )
 
+
+class InstitutionValidatorModel(InstitutionBaseModel):
+    """ API model for creating topology institutions, includes value checks """
 
     @model_validator(mode='after')
     def check_id_format(self):
@@ -62,23 +67,15 @@ class InstitutionModel(BaseModel):
     def validate_unit_id(cls, unitid: Optional[str]):
 
         # check if the unitid is None
-        if unitid is None:
+        if unitid is None or unitid == "":
             return unitid
+
 
         # check if the unitid is a 6-digit number
         if unitid and (not unitid.isdigit() or len(unitid) != 6):
             raise ValueError("Invalid unit ID: must be a 6-digit number")
 
-        # check if the unitid exists in the IPEDS data system
-        file_path = "institutions_api/db/migrations/add_institution_metadata_0/data/hd2023.csv"
-        if not os.path.exists(file_path):
-            raise ValueError("IPEDS data file not found")
-
-        ipeds_data_df = load_csv(file_path)
-
-        # Convert the UNITID column to string, however, this will take a while to convert
-        ipeds_data_df['UNITID'] = ipeds_data_df['UNITID'].astype(str)
-        ipeds_data = ipeds_data_df.set_index("UNITID").to_dict(orient="index")
+        ipeds_data = load_ipeds_data()
 
         # Check if the unitid exists in the dictionary keys
         if unitid not in ipeds_data:
