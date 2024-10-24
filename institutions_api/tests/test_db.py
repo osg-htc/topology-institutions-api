@@ -4,7 +4,7 @@ from fastapi import Request
 from institutions_api.db import db
 from unittest.mock import Mock
 
-from institutions_api.models.api_models import InstitutionModel
+from institutions_api.models.api_models import InstitutionValidatorModel
 from institutions_api.util.oidc_utils import OIDCUserInfo
 
 
@@ -55,7 +55,7 @@ class TestDBFunctions:
         user_info = OIDCUserInfo(mock_request)
 
         unique_name = f"test_institution_{uuid.uuid4().hex[:8]}"
-        new_institution = InstitutionModel(name=unique_name, ror_id="https://ror.org/05ap1zt54")
+        new_institution = InstitutionValidatorModel(name=unique_name, ror_id="https://ror.org/05ap1zt54")
         db.add_institution(new_institution, user_info)
         assert True
 
@@ -65,7 +65,7 @@ class TestDBFunctions:
         user_info = OIDCUserInfo(mock_request)
 
         unique_name = f"test_institution_{uuid.uuid4().hex[:8]}"
-        new_institution = InstitutionModel(name=unique_name, ror_id="https://ror.org/05ap1zt54", unitid="366632")
+        new_institution = InstitutionValidatorModel(name=unique_name, ror_id="https://ror.org/05ap1zt54", unitid="366632")
         db.add_institution(new_institution, user_info)
         assert True
 
@@ -75,9 +75,12 @@ class TestDBFunctions:
         mock_request = self.mock_request() # Mock a request object
         user_info = OIDCUserInfo(mock_request)
 
-        updated_institution_data = InstitutionModel(name="test", ror_id="https://ror.org/05xs36f43")
+        updated_institution_data = InstitutionValidatorModel(name="test", ror_id="https://ror.org/05xs36f43")
         db.update_institution("djdiowajda", updated_institution_data, user_info)
         assert True
+
+    def test_update_institution_with_unitid(self, session, ):
+        pass
 
     def test_invalidate_institution(self, session):
         """test whether invalidation of the institution works"""

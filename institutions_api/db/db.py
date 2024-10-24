@@ -186,6 +186,8 @@ def _update_institution_unit_id(session: Session, institution: Institution, unit
             .where(InstitutionIdentifier.institution_id == institution.id)
             .where(InstitutionIdentifier.identifier_type_id == unit_id_type.id))
     else:
+        ipeds_data = load_ipeds_data()  # load ipeds data
+        ipeds_data_row = ipeds_data.get(unit_id)
         # Check if the institution already has a unitid
         existing_unitid = [i for i in institution.identifiers if i.identifier_type_id == unit_id_type.id]
 
@@ -193,11 +195,37 @@ def _update_institution_unit_id(session: Session, institution: Institution, unit
             # Update the existing unitid
             existing_unitid[0].identifier = unit_id
             session.add(existing_unitid[0])
+
+            ipeds_metadata = institution.ipeds_metadata
+            ipeds_metadata.website_address = ipeds_data_row['WEBADDR']
+            ipeds_metadata.historically_black_college_or_university = ipeds_data_row.get('HBCU') == 1
+            ipeds_metadata.tribal_college_or_university = ipeds_data_row.get('TRIBAL') == 1
+            ipeds_metadata.program_length = PROGRAM_LENGTH_MAPPING.get(str(ipeds_data_row.get('ICLEVEL')))
+            ipeds_metadata.control = CONTROL_MAPPING.get(str(ipeds_data_row.get('CONTROL')))
+            ipeds_metadata.state = ipeds_data_row.get('STABBR')
+            ipeds_metadata.institution_size = INSTITUTION_SIZE_MAPPING.get(str(ipeds_data_row.get('INSTSIZE')))
+            session.add(ipeds_metadata)
+
         else:
             # Create a new InstitutionIdentifier for unitid if it doesn't exist
             new_unitid = InstitutionIdentifier(identifier_type=unit_id_type, identifier=unit_id,
                                                institution_id=institution.id)
             session.add(new_unitid)
+
+            # create a new row of ipeds metadata
+            ipeds_metadata = InstitutionIPEDSMetadata(
+                website_address=ipeds_data_row['WEBADDR'],
+                historically_black_college_or_university=ipeds_data_row.get('HBCU') == 1,
+                tribal_college_or_university=ipeds_data_row.get('TRIBAL') == 1,
+                program_length=PROGRAM_LENGTH_MAPPING.get(str(ipeds_data_row.get('ICLEVEL'))),
+                control=CONTROL_MAPPING.get(str(ipeds_data_row.get('CONTROL'))),
+                state=ipeds_data_row.get('STABBR'),
+                institution_size=INSTITUTION_SIZE_MAPPING.get(str(ipeds_data_row.get('INSTSIZE'))),
+                institution=institution,
+                institution_identifier_id=new_unitid.id
+            )
+            session.add(ipeds_metadata)
+
 
 
 @sqlalchemy_http_exceptions
