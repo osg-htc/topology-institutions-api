@@ -1,9 +1,11 @@
+from typing import Optional
 
-from pydantic import Optional, BaseModel, Field, model_validator, field_validator
+from pydantic import BaseModel, Field, model_validator, field_validator
 from institutions_api.db.db_models import Institution
 from institutions_api.util.load_ipeds_data import load_ipeds_data
 from institutions_api.util.ror_utils import validate_ror_id
 from institutions_api.constants import ROR_ID_PREFIX, OSG_ID_PREFIX
+
 
 class InstitutionIPEDSMetadataModel(BaseModel):
     website_address: Optional[str] = Field(None, description="The institution's website address")
@@ -18,7 +20,8 @@ class InstitutionIPEDSMetadataModel(BaseModel):
     class Config:
         orm_mode = True
 
-class InstitutionModel(BaseModel):
+
+class InstitutionBaseModel(BaseModel):
     """ API model for topology institutions """
     name: str = Field(..., description="The name of the institution")
     id: Optional[str] = Field(None, description="The institution's OSG ID")
@@ -32,7 +35,7 @@ class InstitutionModel(BaseModel):
     def from_institution(cls, inst: Institution) -> "InstitutionModel":
         ror_ids = [i.identifier for i in inst.identifiers if i.identifier_type.name == 'ror_id']
         unitids = [i.identifier for i in inst.identifiers if i.identifier_type.name == 'unitid']
-        return InstitutionModel(
+        return InstitutionBaseModel(
             name=inst.name,
             id=inst.topology_identifier,
             ror_id=ror_ids[0] if ror_ids else None,
@@ -42,6 +45,9 @@ class InstitutionModel(BaseModel):
             ipeds_metadata=InstitutionIPEDSMetadataModel(**inst.ipeds_metadata.__dict__) if inst.ipeds_metadata else None
         )
 
+
+class InstitutionValidatorModel(InstitutionBaseModel):
+    """ API model for creating topology institutions, includes value checks """
 
     @model_validator(mode='after')
     def check_id_format(self):

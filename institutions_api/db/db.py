@@ -1,12 +1,12 @@
 from sqlalchemy import create_engine, select, delete
-from sqlalchemy.orm import sessionmaker, Session
+from sqlalchemy.orm import sessionmaker, Session, joinedload
 from os import environ
 from typing import Optional
 import urllib.parse
 from .db_models import *
 from .error_wrapper import sqlalchemy_http_exceptions
 from institutions_api.util.oidc_utils import OIDCUserInfo
-from institutions_api.models.api_models import InstitutionModel, OSG_ID_PREFIX
+from institutions_api.models.api_models import InstitutionBaseModel,  OSG_ID_PREFIX, InstitutionValidatorModel
 from secrets import choice
 from string import ascii_lowercase, digits
 from institutions_api.db.metadata_mappings import INSTITUTION_SIZE_MAPPING, PROGRAM_LENGTH_MAPPING, CONTROL_MAPPING
@@ -65,16 +65,19 @@ def _check_for_deactivated_institution(session: Session, name: str) -> Optional[
     return _short_osg_id(deactivated_inst.topology_identifier) if deactivated_inst else None
 
 @sqlalchemy_http_exceptions
-def get_valid_institutions() -> List[InstitutionModel]:
+def get_valid_institutions() -> List[InstitutionBaseModel]:
     """ Get a sorted list of every valid institution """
-    with DbSession() as session:
+    with (DbSession() as session):
         institutions = session.scalars(select(Institution)
             .where(Institution.valid)
-            .order_by(Institution.name)).all()
-        return [InstitutionModel.from_institution(i) for i in institutions]
+            .order_by(Institution.name)
+            .options(joinedload(Institution.identifiers))
+            .options(joinedload(Institution.ipeds_metadata))
+        ).unique().all()
+        return [InstitutionBaseModel.from_institution(i) for i in institutions]
 
 @sqlalchemy_http_exceptions
-def get_institution_details(short_id: str) -> InstitutionModel:
+def get_institution_details(short_id: str) -> InstitutionBaseModel:
     """ Get an existing institution by ID """
     with DbSession() as session:
         institution = session.scalar(select(Institution)
@@ -83,10 +86,10 @@ def get_institution_details(short_id: str) -> InstitutionModel:
         if institution is None:
             return HTTPException(404, f"No institution found with id {short_id}")
 
-        return InstitutionModel.from_institution(institution)
+        return InstitutionBaseModel.from_institution(institution)
 
 @sqlalchemy_http_exceptions
-def add_institution(institution: InstitutionModel, author: OIDCUserInfo):
+def add_institution(institution: InstitutionValidatorModel, author: OIDCUserInfo):
     """ Create a new institution """
     with DbSession() as session:
         if deactivated_id := _check_for_deactivated_institution(session, institution.name):
@@ -198,7 +201,7 @@ def _update_institution_unit_id(session: Session, institution: Institution, unit
 
 
 @sqlalchemy_http_exceptions
-def update_institution(short_id: str, institution: InstitutionModel, author: OIDCUserInfo):
+def update_institution(short_id: str, institution: InstitutionValidatorModel, author: OIDCUserInfo):
     """ Update an existing institution """
     with DbSession() as session:
         to_update = session.scalar(select(Institution)
