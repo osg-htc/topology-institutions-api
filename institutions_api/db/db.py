@@ -112,7 +112,7 @@ def add_institution(institution: InstitutionValidatorModel, author: OIDCUserInfo
             if ipeds_data_row is None:
                 raise ValueError("Invalid unit ID: not found in the IPEDS data system")
 
-            # Convert np.float64 to native Python float
+            # Convert to float
             latitude = float(ipeds_data_row.get('LATITUDE', 0))
             longitude = float(ipeds_data_row.get('LONGITUD', 0))
 
@@ -132,6 +132,8 @@ def add_institution(institution: InstitutionValidatorModel, author: OIDCUserInfo
                 institution_id=inst.id
             )
             session.add(institution_identifier)
+            session.flush() # this flush makes sure that the institution_identifier.id is populated
+            # so the id can be assigned to the ipeds_metadata so they are linked
 
             # Create the InstitutionIPEDSMetadata object to store all the metadata
             ipeds_metadata = InstitutionIPEDSMetadata(
@@ -179,7 +181,7 @@ def _update_institution_unit_id(session: Session, institution: Institution, unit
     if not unit_id_type:
         raise HTTPException(400, "IdentifierType for 'unitid' not found")
 
-    if not unit_id:
+    if not unit_id or unit_id.strip() == "":
         # delete any existing unit ids if null in the text fields
         session.delete(institution.ipeds_metadata)
         session.execute(delete(InstitutionIdentifier)
@@ -188,7 +190,11 @@ def _update_institution_unit_id(session: Session, institution: Institution, unit
     else:
         ipeds_data = load_ipeds_data()  # load ipeds data
         ipeds_data_row = ipeds_data.get(unit_id)
-        # Check if the institution already has a unitid
+
+        if ipeds_data_row is None:
+            raise HTTPException(400, f"IPEDS data for unit ID {unit_id} not found")
+
+        # Check if the institution already has an unitid
         existing_unitid = [i for i in institution.identifiers if i.identifier_type_id == unit_id_type.id]
 
         if existing_unitid:
@@ -206,13 +212,14 @@ def _update_institution_unit_id(session: Session, institution: Institution, unit
             ipeds_metadata.institution_size = INSTITUTION_SIZE_MAPPING.get(str(ipeds_data_row.get('INSTSIZE')))
             session.add(ipeds_metadata)
 
-        else:
+        else: # if the institution doesn't have an unitid, create a new one
             # Create a new InstitutionIdentifier for unitid if it doesn't exist
             new_unitid = InstitutionIdentifier(identifier_type=unit_id_type, identifier=unit_id,
                                                institution_id=institution.id)
             session.add(new_unitid)
+            session.flush()
 
-            # create a new row of ipeds metadata
+            # create a new row of ipeds metadata that stores the metadata for the corresponding unitid
             ipeds_metadata = InstitutionIPEDSMetadata(
                 website_address=ipeds_data_row['WEBADDR'],
                 historically_black_college_or_university=ipeds_data_row.get('HBCU') == 1,
