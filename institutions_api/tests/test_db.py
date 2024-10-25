@@ -4,15 +4,26 @@ from fastapi import Request
 from institutions_api.db import db
 from unittest.mock import Mock
 
+from sqlalchemy import create_engine, select, delete
+from sqlalchemy.orm import sessionmaker, Session, joinedload
+
+from institutions_api.db.db_models import Institution, Base, IdentifierType
 from institutions_api.models.api_models import InstitutionValidatorModel
 from institutions_api.util.oidc_utils import OIDCUserInfo
 
 
 @pytest.fixture
 def session():
-    session = db.Session()
+    # Create an in-memory SQLite database engine
+    engine = create_engine('sqlite:///:memory:')
+    # Create all tables in the in-memory database
+    Base.metadata.create_all(engine)
+    # Create a configured "Session" class
+    Session = sessionmaker(bind=engine)
+    # Create a Session
+    session = Session()
     yield session
-    session.rollback() # rollback after every test
+    session.rollback()  # Rollback after every test
     session.close()
 
 class TestDBFunctions:
@@ -65,7 +76,7 @@ class TestDBFunctions:
         user_info = OIDCUserInfo(mock_request)
 
         unique_name = f"test_institution_{uuid.uuid4().hex[:8]}"
-        new_institution = InstitutionValidatorModel(name=unique_name, ror_id="https://ror.org/05ap1zt54", unitid="366632")
+        new_institution = InstitutionValidatorModel(name=unique_name, ror_id="https://ror.org/05ap1zt54", unitid="366340")
         db.add_institution(new_institution, user_info)
         assert True
 
@@ -75,12 +86,79 @@ class TestDBFunctions:
         mock_request = self.mock_request() # Mock a request object
         user_info = OIDCUserInfo(mock_request)
 
-        updated_institution_data = InstitutionValidatorModel(name="test", ror_id="https://ror.org/05xs36f43")
+        unique_name = f"test_institution_{uuid.uuid4().hex[:8]}"
+        updated_institution_data = InstitutionValidatorModel(name=unique_name, ror_id="https://ror.org/05xs36f43")
         db.update_institution("djdiowajda", updated_institution_data, user_info)
         assert True
 
-    def test_update_institution_with_unitid(self, session, ):
-        pass
+    def test_update_institution_with_existing_unitid(self, session):
+        """test whether updating the institution with an existing unitid works"""
+
+        unit_id_type = IdentifierType(name='unitid')
+        session.add(unit_id_type)
+        session.commit()
+
+        institution = Institution(name="Test Institution", topology_identifier="test_id", created_by="test_user")
+        session.add(institution)
+        session.commit()
+
+        # Add initial unit ID
+        initial_unit_id = "366623"
+        db._update_institution_unit_id(session, institution, initial_unit_id)
+        session.commit()
+
+        # Update the unit ID
+        updated_unit_id = "366632"
+        db._update_institution_unit_id(session, institution, updated_unit_id)
+        session.commit()
+
+        # Verify the update
+        updated_institution = session.scalar(select(Institution).where(Institution.id == institution.id))
+        assert updated_institution.identifiers[0].identifier == updated_unit_id
+
+    def test_delete_existing_unit_id(self, session):
+        """Test deleting an existing unit ID"""
+
+        unit_id_type = IdentifierType(name='unitid')
+        session.add(unit_id_type)
+        session.commit()
+
+        institution = Institution(name="Test Institution", topology_identifier="test_id", created_by="test_user")
+        session.add(institution)
+        session.commit()
+
+        # Add initial unit ID
+        initial_unit_id = "366632"
+        db._update_institution_unit_id(session, institution, initial_unit_id)
+        session.commit()
+
+        # Remove the unit ID by setting it to an empty string
+        db._update_institution_unit_id(session, institution, " ")
+        session.commit()
+
+        # Verify the removal
+        updated_institution = session.scalar(select(Institution).where(Institution.id == institution.id))
+        assert len(updated_institution.identifiers) == 0
+
+    def test_add_new_unit_id(self, session):
+        """Test adding a new unit ID"""
+
+        unit_id_type = IdentifierType(name='unitid')
+        session.add(unit_id_type)
+        session.commit()
+
+        institution = Institution(name="Test Institution", topology_identifier="test_id", created_by="test_user")
+        session.add(institution)
+        session.commit()
+
+        # Add new unit ID
+        new_unit_id = "366632"
+        db._update_institution_unit_id(session, institution, new_unit_id)
+        session.commit()
+
+        # Verify the addition
+        updated_institution = session.scalar(select(Institution).where(Institution.id == institution.id))
+        assert updated_institution.identifiers[0].identifier == new_unit_id
 
     def test_invalidate_institution(self, session):
         """test whether invalidation of the institution works"""
