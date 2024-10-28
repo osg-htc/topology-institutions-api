@@ -1,18 +1,19 @@
 from sqlalchemy import create_engine, select, delete
-from sqlalchemy.orm import sessionmaker, Session
+from sqlalchemy.orm import sessionmaker, Session, joinedload
 from os import environ
 from typing import Optional
 import urllib.parse
 from .db_models import *
 from .error_wrapper import sqlalchemy_http_exceptions
 from institutions_api.util.oidc_utils import OIDCUserInfo
-from institutions_api.models.api_models import InstitutionModel, OSG_ID_PREFIX
+from institutions_api.models.api_models import InstitutionBaseModel,  OSG_ID_PREFIX, InstitutionValidatorModel
 from secrets import choice
 from string import ascii_lowercase, digits
 from institutions_api.db.metadata_mappings import INSTITUTION_SIZE_MAPPING, PROGRAM_LENGTH_MAPPING, CONTROL_MAPPING
 # TODO not the best practice to return http errors from db layer
 from fastapi import HTTPException
-from institutions_api.util.load_csv import load_csv
+
+from ..util.load_ipeds_data import load_ipeds_data
 
 # DB connection based on secrets populated by the crunchydata postgres operator
 engine = create_engine(
@@ -24,10 +25,15 @@ Base.metadata.create_all(engine)
 DbSession = sessionmaker(bind=engine)
 
 ROR_ID_TYPE = 'ror_id'
+UNIT_ID_TYPE = 'unitid'
 
 def _ror_id_type(session: Session) -> IdentifierType:
     """ Get the IdentifierType entity that corresponds to ROR ID """
     return session.scalars(select(IdentifierType).where(IdentifierType.name == ROR_ID_TYPE)).first()
+
+def _unit_id_type(session: Session) -> IdentifierType:
+    """ Get the IdentifierType entity that corresponds to unit ID """
+    return session.scalars(select(IdentifierType).where(IdentifierType.name == UNIT_ID_TYPE)).first()
 
 def _full_osg_id(short_id: str):
     """ Get the full osg-htc url of an institution based on its ID suffix """
@@ -59,16 +65,19 @@ def _check_for_deactivated_institution(session: Session, name: str) -> Optional[
     return _short_osg_id(deactivated_inst.topology_identifier) if deactivated_inst else None
 
 @sqlalchemy_http_exceptions
-def get_valid_institutions() -> List[InstitutionModel]:
+def get_valid_institutions() -> List[InstitutionBaseModel]:
     """ Get a sorted list of every valid institution """
-    with DbSession() as session:
+    with (DbSession() as session):
         institutions = session.scalars(select(Institution)
             .where(Institution.valid)
-            .order_by(Institution.name)).all()
-        return [InstitutionModel.from_institution(i) for i in institutions]
+            .order_by(Institution.name)
+            .options(joinedload(Institution.identifiers))
+            .options(joinedload(Institution.ipeds_metadata))
+        ).unique().all()
+        return [InstitutionBaseModel.from_institution(i) for i in institutions]
 
 @sqlalchemy_http_exceptions
-def get_institution_details(short_id: str) -> InstitutionModel:
+def get_institution_details(short_id: str) -> InstitutionBaseModel:
     """ Get an existing institution by ID """
     with DbSession() as session:
         institution = session.scalar(select(Institution)
@@ -77,10 +86,10 @@ def get_institution_details(short_id: str) -> InstitutionModel:
         if institution is None:
             return HTTPException(404, f"No institution found with id {short_id}")
 
-        return InstitutionModel.from_institution(institution)
+        return InstitutionBaseModel.from_institution(institution)
 
 @sqlalchemy_http_exceptions
-def add_institution(institution: InstitutionModel, author: OIDCUserInfo):
+def add_institution(institution: InstitutionValidatorModel, author: OIDCUserInfo):
     """ Create a new institution """
     with DbSession() as session:
         if deactivated_id := _check_for_deactivated_institution(session, institution.name):
@@ -97,13 +106,13 @@ def add_institution(institution: InstitutionModel, author: OIDCUserInfo):
         # Add IPEDS metadata if the institution has an unitid
         if institution.unitid:
             # Load the unitid csv file
-            file_path = "institutions_api/db/migrations/add_institution_metadata_0/data/hd2023.csv"
-            ipeds_data_df = load_csv(file_path)
+            ipeds_data = load_ipeds_data()  # Use cached data
+            ipeds_data_row = ipeds_data.get(institution.unitid)
 
-            # Find the row in the IPEDS data that corresponds to the unit id
-            ipeds_data_row = ipeds_data_df[ipeds_data_df['UNITID'] == int(institution.unitid)].iloc[0]
+            if ipeds_data_row is None:
+                raise ValueError("Invalid unit ID: not found in the IPEDS data system")
 
-            # Convert np.float64 to native Python float
+            # Convert to float
             latitude = float(ipeds_data_row.get('LATITUDE', 0))
             longitude = float(ipeds_data_row.get('LONGITUD', 0))
 
@@ -123,7 +132,8 @@ def add_institution(institution: InstitutionModel, author: OIDCUserInfo):
                 institution_id=inst.id
             )
             session.add(institution_identifier)
-            session.flush()
+            session.flush() # this flush makes sure that the institution_identifier.id is populated
+            # so the id can be assigned to the ipeds_metadata so they are linked
 
             # Create the InstitutionIPEDSMetadata object to store all the metadata
             ipeds_metadata = InstitutionIPEDSMetadata(
@@ -161,8 +171,72 @@ def _update_institution_ror_id(session: Session, institution: Institution, ror_i
         # create a new ROR ID for the institution
         session.add(InstitutionIdentifier(ror_id_type, ror_id, institution.id))
 
+def _update_institution_unit_id(session: Session, institution: Institution, unit_id: str):
+    """ Handle updates to an institution's joined InstitutionIdentifier of type 'unitid'
+    based on the 'unitid' value passed in the API model
+    """
+
+    unit_id_type = _unit_id_type(session)
+
+    if not unit_id_type:
+        raise HTTPException(400, "IdentifierType for 'unitid' not found")
+
+    if not unit_id or unit_id.strip() == "":
+        # delete any existing unit ids if null in the text fields
+        session.delete(institution.ipeds_metadata)
+        session.execute(delete(InstitutionIdentifier)
+            .where(InstitutionIdentifier.institution_id == institution.id)
+            .where(InstitutionIdentifier.identifier_type_id == unit_id_type.id))
+    else:
+        ipeds_data = load_ipeds_data()  # load ipeds data
+        ipeds_data_row = ipeds_data.get(unit_id)
+
+        if ipeds_data_row is None:
+            raise HTTPException(400, f"IPEDS data for unit ID {unit_id} not found")
+
+        # Check if the institution already has an unitid
+        existing_unitid = [i for i in institution.identifiers if i.identifier_type_id == unit_id_type.id]
+
+        if existing_unitid:
+            # Update the existing unitid
+            existing_unitid[0].identifier = unit_id
+            session.add(existing_unitid[0])
+
+            ipeds_metadata = institution.ipeds_metadata
+            ipeds_metadata.website_address = ipeds_data_row['WEBADDR']
+            ipeds_metadata.historically_black_college_or_university = ipeds_data_row.get('HBCU') == 1
+            ipeds_metadata.tribal_college_or_university = ipeds_data_row.get('TRIBAL') == 1
+            ipeds_metadata.program_length = PROGRAM_LENGTH_MAPPING.get(str(ipeds_data_row.get('ICLEVEL')))
+            ipeds_metadata.control = CONTROL_MAPPING.get(str(ipeds_data_row.get('CONTROL')))
+            ipeds_metadata.state = ipeds_data_row.get('STABBR')
+            ipeds_metadata.institution_size = INSTITUTION_SIZE_MAPPING.get(str(ipeds_data_row.get('INSTSIZE')))
+            session.add(ipeds_metadata)
+
+        else: # if the institution doesn't have an unitid, create a new one
+            # Create a new InstitutionIdentifier for unitid if it doesn't exist
+            new_unitid = InstitutionIdentifier(identifier_type=unit_id_type, identifier=unit_id,
+                                               institution_id=institution.id)
+            session.add(new_unitid)
+            session.flush()
+
+            # create a new row of ipeds metadata that stores the metadata for the corresponding unitid
+            ipeds_metadata = InstitutionIPEDSMetadata(
+                website_address=ipeds_data_row['WEBADDR'],
+                historically_black_college_or_university=ipeds_data_row.get('HBCU') == 1,
+                tribal_college_or_university=ipeds_data_row.get('TRIBAL') == 1,
+                program_length=PROGRAM_LENGTH_MAPPING.get(str(ipeds_data_row.get('ICLEVEL'))),
+                control=CONTROL_MAPPING.get(str(ipeds_data_row.get('CONTROL'))),
+                state=ipeds_data_row.get('STABBR'),
+                institution_size=INSTITUTION_SIZE_MAPPING.get(str(ipeds_data_row.get('INSTSIZE'))),
+                institution=institution,
+                institution_identifier_id=new_unitid.id
+            )
+            session.add(ipeds_metadata)
+
+
+
 @sqlalchemy_http_exceptions
-def update_institution(short_id: str, institution: InstitutionModel, author: OIDCUserInfo):
+def update_institution(short_id: str, institution: InstitutionValidatorModel, author: OIDCUserInfo):
     """ Update an existing institution """
     with DbSession() as session:
         to_update = session.scalar(select(Institution)
@@ -173,9 +247,13 @@ def update_institution(short_id: str, institution: InstitutionModel, author: OID
 
         to_update.name = institution.name
         _update_institution_ror_id(session, to_update, institution.ror_id)
+        _update_institution_unit_id(session, to_update, institution.unitid)
         to_update.updated_by = author.id
         to_update.updated = datetime.now()
         to_update.valid = True
+        to_update.latitude = institution.latitude
+        to_update.longitude = institution.longitude
+
 
         session.commit()
 
