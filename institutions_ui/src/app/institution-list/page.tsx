@@ -1,6 +1,5 @@
 'use client';
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
 import EditIcon from '@mui/icons-material/Edit';
 import {
   IconButton,
@@ -12,34 +11,21 @@ import {
   TableRow,
 } from '@mui/material';
 import NavBar from '@/app/components/NavBar';
-import { router } from 'next/client';
 import { useRouter } from 'next/navigation';
 
-interface Institution {
-  id: string;
-  name: string;
-  ror_id: string;
-  unitid: string;
-  longitude: number;
-  latitude: number;
-  ipeds_metadata: IpedsMetadata;
-}
-
-interface IpedsMetadata {
-  website_address: string;
-  historically_black_college_or_university: boolean;
-  tribal_college_or_university: boolean;
-  program_length: string;
-  control: string;
-  state: string;
-  institution_size: string;
-}
+import { Institution } from '@/app';
 
 export default function InstitutionList() {
   const [data, setData] = useState<Institution[]>([]);
   const router = useRouter();
 
-  useEffect(() => {}, []);
+  useEffect(() => {
+    (async () => {
+        const response = await fetch('/api/institutions');
+        const data = await response.json();
+        setData(data);
+    })()
+  }, []);
 
   const extractShortId = (fullId: string) => {
     const parts = fullId.split('/');

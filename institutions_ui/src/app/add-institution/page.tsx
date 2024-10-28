@@ -2,7 +2,6 @@
 import NavBar from '@/app/components/NavBar';
 import { Button, TextField, Typography } from '@mui/material';
 import { useState } from 'react';
-import axios from 'axios';
 import { Stack, Box, Paper } from '@mui/material';
 import { styled } from '@mui/material';
 
@@ -88,10 +87,11 @@ export default function AddInstitution() {
       ipeds_metadata: null,
     };
 
-    const response = await axios.post(
-      'http://localhost:8089/institutions',
-      institutionData,
+    const response = await fetch(
+      '/api/institutions',
       {
+        method: 'POST',
+        body: JSON.stringify(institutionData),
         headers: {
           'Content-Type': 'application/json',
         },
