@@ -1,64 +1,20 @@
-'use client';
+'use client'
+
+import { Button, TextField, Box, Typography, Stack } from '@mui/material';
+import {useEffect, useState} from 'react';
+import {useSearchParams} from "next/navigation";
+
 import NavBar from '@/app/components/NavBar';
-import { Button, TextField, Typography } from '@mui/material';
-import { useEffect, useState } from 'react';
-import { Stack, Box, Paper } from '@mui/material';
-import { styled } from '@mui/material';
-import { useSearchParams } from 'next/navigation';
 import { Institution } from '@/app';
+import { Item } from '@/app/components/Item';
 
-const Item = styled(Paper)(({ theme }) => ({
-  backgroundColor: '#fff',
-  ...theme.typography.body2,
-  padding: theme.spacing(1),
-  textAlign: 'center',
-  color: theme.palette.text.secondary,
-  ...theme.applyStyles('dark', {
-    backgroundColor: '#1A2027',
-  }),
-}));
+export default function Page() {
 
-export default function UpdateInstitution() {
   const searchParams = useSearchParams();
   const id = searchParams.get('id'); // receiving the id from the URL
-  // console.log("id:", id)
 
   const [institution, setInstitution] = useState<Institution>();
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
-
-  const validateForm = () => {
-    const validationErrors: { [key: string]: string } = {};
-
-    // Check if name is empty
-    if (!institution?.name) {
-      validationErrors.name = 'Name is required';
-    }
-
-    if (institution?.unitid && !/^\d{6}$/.test(institution.unitid)) {
-      validationErrors.unitid = 'Unit ID must be 6 digits long';
-    }
-
-    // Check if ROR ID is a valid URL
-    if (
-      institution?.ror_id &&
-      !/^https:\/\/ror\.org\/.+$/.test(institution?.ror_id as string)
-    ) {
-      validationErrors.ror_id =
-        'Invalid ROR ID format (must start with https://ror.org/)';
-    }
-
-    // Check if longitude and latitude are numbers
-    if (institution?.longitude && isNaN(parseFloat(institution?.longitude as string))) {
-      validationErrors.longitude = 'Longitude must be a number';
-    }
-
-    if (institution?.latitude && isNaN(parseFloat(institution?.latitude as string))) {
-      validationErrors.latitude = 'Latitude must be a number';
-    }
-    setErrors(validationErrors);
-
-    return Object.keys(validationErrors).length === 0;
-  };
 
   useEffect(() => {
     (async () => {
@@ -74,7 +30,11 @@ export default function UpdateInstitution() {
     e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>,
     field: keyof Institution
   ) => {
-    setInstitution((prev: Institution) => {
+    setInstitution((prev: Institution | undefined) => {
+
+      // This can't happen
+      if( prev === undefined) return prev;
+
       return { ...prev, [field]: e.target.value };
     })
   };
@@ -83,7 +43,10 @@ export default function UpdateInstitution() {
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!validateForm()) {
+    const errors = validateForm(institution)
+
+    if (errors) {
+      setErrors(errors)
       return;
     }
 
@@ -187,3 +150,36 @@ export default function UpdateInstitution() {
     </>
   );
 }
+
+const validateForm = (institution: Institution | undefined) => {
+  const validationErrors: { [key: string]: string } = {};
+
+  // Check if name is empty
+  if (!institution?.name) {
+    validationErrors.name = 'Name is required';
+  }
+
+  if (institution?.unitid && !/^\d{6}$/.test(institution.unitid)) {
+    validationErrors.unitid = 'Unit ID must be 6 digits long';
+  }
+
+  // Check if ROR ID is a valid URL
+  if (
+    institution?.ror_id &&
+    !/^https:\/\/ror\.org\/.+$/.test(institution?.ror_id as string)
+  ) {
+    validationErrors.ror_id =
+      'Invalid ROR ID format (must start with https://ror.org/)';
+  }
+
+  // Check if longitude and latitude are numbers
+  if (institution?.longitude && isNaN(parseFloat(institution?.longitude as string))) {
+    validationErrors.longitude = 'Longitude must be a number';
+  }
+
+  if (institution?.latitude && isNaN(parseFloat(institution?.latitude as string))) {
+    validationErrors.latitude = 'Latitude must be a number';
+  }
+
+  return validationErrors
+};

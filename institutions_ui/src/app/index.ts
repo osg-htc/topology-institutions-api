@@ -3,8 +3,8 @@ export interface Institution {
   name: string;
   ror_id: string;
   unitid: string;
-  longitude: number;
-  latitude: number;
+  longitude: number | string;
+  latitude: number | string;
   ipeds_metadata: IpedsMetadata;
 }
 
