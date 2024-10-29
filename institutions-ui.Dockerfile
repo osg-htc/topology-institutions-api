@@ -7,7 +7,7 @@ RUN npm install
 COPY institutions_ui/ /build/
 RUN npm run build
 
-FROM nginx:latest
+FROM --platform=linux/amd64 nginx:latest
 
 COPY --from=build-step /build/out /usr/share/nginx/html
 COPY nginx.conf /etc/nginx/conf.d/default.conf

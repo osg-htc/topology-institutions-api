@@ -13,7 +13,6 @@ import {
 import NavBar from '@/app/components/NavBar';
 
 import { Institution } from '@/app';
-import Link from "next/link";
 
 export default function InstitutionList() {
   const [data, setData] = useState<Institution[]>([]);
@@ -56,13 +55,13 @@ export default function InstitutionList() {
             data.map((institution) => (
               <TableRow key={institution.id}>
                 <TableCell>
-                  <Link href={`/update-institution?id=${extractShortId(institution.id)}`}>
+                  <a href={`/ui/update-institution.html?id=${extractShortId(institution.id)}`}>
                     <IconButton
                       aria-label='edit'
                     >
                       <EditIcon />
                     </IconButton>
-                  </Link>
+                  </a>
                   {institution.name}
                 </TableCell>
                 <TableCell>{institution.id}</TableCell>
