@@ -74,5 +74,5 @@ docker push hub.opensciencegrid.org/opensciencegrid/topology-institutions-ui:$TA
 ```
 
 ```shell
-docker run --env-file .env hub.opensciencegrid.org/opensciencegrid/topology-institutions-ui:0.2.0
+docker run -p  --env-file .env hub.opensciencegrid.org/opensciencegrid/topology-institutions-ui:$TAG
 ```
