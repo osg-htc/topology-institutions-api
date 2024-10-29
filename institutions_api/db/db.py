@@ -181,7 +181,7 @@ def _update_institution_unit_id(session: Session, institution: Institution, unit
     if not unit_id_type:
         raise HTTPException(400, "IdentifierType for 'unitid' not found")
 
-    if not unit_id or unit_id.strip() == "":
+    if (not unit_id or unit_id.strip() == "") and institution.ipeds_metadata:
         # delete any existing unit ids if null in the text fields
         session.delete(institution.ipeds_metadata)
         session.execute(delete(InstitutionIdentifier)

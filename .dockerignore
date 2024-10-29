@@ -1,1 +1,5 @@
+.venv
 .env
+/institutions_ui/.next
+/institutions_ui/node_modules
+/institutions_ui/out

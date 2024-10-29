@@ -9,11 +9,13 @@ from institutions_api.util.oidc_utils import OIDCUserInfo
 
 logger = logging.getLogger("default")
 
-
-app = FastAPI()
+app = FastAPI(
+    openapi_prefix="./"
+)
 
 origins = [
     "http://localhost:3000",
+    "http://localhost:8089",
     ]
 
 app.add_middleware(CORSMiddleware,

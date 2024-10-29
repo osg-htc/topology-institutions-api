@@ -45,7 +45,7 @@ export default function Page() {
 
     const errors = validateForm(institution)
 
-    if (errors) {
+    if (errors && Object.keys(errors).length > 0) {
       setErrors(errors)
       return;
     }
