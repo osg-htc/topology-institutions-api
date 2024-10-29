@@ -1,9 +1,10 @@
-from pydantic import BaseModel, Field, model_validator
-from typing import Optional, Literal
-from institutions_api.db.db_models import Institution
+from typing import Optional
 
-OSG_ID_PREFIX = "https://osg-htc.org/iid/"
-ROR_ID_PREFIX = "https://ror.org/"
+from pydantic import BaseModel, Field, model_validator, field_validator
+from institutions_api.db.db_models import Institution
+from institutions_api.util.load_ipeds_data import load_ipeds_data
+from institutions_api.util.ror_utils import validate_ror_id
+from institutions_api.constants import ROR_ID_PREFIX, OSG_ID_PREFIX
 
 
 class InstitutionIPEDSMetadataModel(BaseModel):
@@ -19,7 +20,8 @@ class InstitutionIPEDSMetadataModel(BaseModel):
     class Config:
         orm_mode = True
 
-class InstitutionModel(BaseModel):
+
+class InstitutionBaseModel(BaseModel):
     """ API model for topology institutions """
     name: str = Field(..., description="The name of the institution")
     id: Optional[str] = Field(None, description="The institution's OSG ID")
@@ -33,7 +35,7 @@ class InstitutionModel(BaseModel):
     def from_institution(cls, inst: Institution) -> "InstitutionModel":
         ror_ids = [i.identifier for i in inst.identifiers if i.identifier_type.name == 'ror_id']
         unitids = [i.identifier for i in inst.identifiers if i.identifier_type.name == 'unitid']
-        return InstitutionModel(
+        return InstitutionBaseModel(
             name=inst.name,
             id=inst.topology_identifier,
             ror_id=ror_ids[0] if ror_ids else None,
@@ -44,9 +46,40 @@ class InstitutionModel(BaseModel):
         )
 
 
+class InstitutionValidatorModel(InstitutionBaseModel):
+    """ API model for creating topology institutions, includes value checks """
+
     @model_validator(mode='after')
     def check_id_format(self):
         assert self.name, "Name must be non-empty"
         assert (not self.id) or self.id.startswith(OSG_ID_PREFIX), f"OSG ID must start with '{OSG_ID_PREFIX}'"
         assert (not self.ror_id) or self.ror_id.startswith(ROR_ID_PREFIX), f"ROR ID must be empty or start with '{ROR_ID_PREFIX}'"
         return self
+
+    @field_validator('ror_id')
+    @classmethod
+    def validate_ror(cls, ror_id: Optional[str]):
+        validate_ror_id(ror_id)
+        return ror_id
+
+    @field_validator('unitid')
+    @classmethod
+    def validate_unit_id(cls, unitid: Optional[str]):
+
+        # check if the unitid is None
+        if unitid is None or unitid == "":
+            return unitid
+
+
+        # check if the unitid is a 6-digit number
+        if unitid and (not unitid.isdigit() or len(unitid) != 6):
+            raise ValueError("Invalid unit ID: must be a 6-digit number")
+
+        ipeds_data = load_ipeds_data()
+
+        # Check if the unitid exists in the dictionary keys
+        if unitid not in ipeds_data:
+            raise ValueError("Invalid unit ID: not found in the IPEDS data system")
+        return unitid
+
+
