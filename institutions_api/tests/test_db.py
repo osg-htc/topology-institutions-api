@@ -116,6 +116,31 @@ class TestDBFunctions:
         updated_institution = session.scalar(select(Institution).where(Institution.id == institution.id))
         assert updated_institution.identifiers[0].identifier == updated_unit_id
 
+    def test_update_institution_with_no_existing_unitid(self, session):
+        """Test updating the institution with a new unit ID when no existing unit ID is present"""
+
+        # Add a unit ID type for 'unitid'
+        unit_id_type = IdentifierType(name='unitid')
+        session.add(unit_id_type)
+        session.commit()
+
+        # Create a test institution without any unit ID
+        institution = Institution(name="Institution without UnitID", topology_identifier="test_id_no_unitid",
+                                  created_by="test_user")
+        session.add(institution)
+        session.commit()
+
+        # New unit ID to add
+        new_unit_id = "233666"
+
+        # Update the institution with the new unit ID
+        db._update_institution_unit_id(session, institution, new_unit_id)
+        session.commit()
+
+        # Verify the addition of the unit ID
+        updated_institution = session.scalar(select(Institution).where(Institution.id == institution.id))
+        assert updated_institution.identifiers[0].identifier == new_unit_id
+
     def test_delete_existing_unit_id(self, session):
         """Test deleting an existing unit ID"""
 
