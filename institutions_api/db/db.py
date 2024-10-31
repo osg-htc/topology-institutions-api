@@ -233,6 +233,12 @@ def _update_institution_unit_id(session: Session, institution: Institution, unit
             )
             session.add(ipeds_metadata)
 
+            # Add latitude and longitude if they don't exist
+            if not institution.latitude:
+                institution.latitude = float(ipeds_data_row.get('LATITUDE', 0))
+            if not institution.longitude:
+                institution.longitude = float(ipeds_data_row.get('LONGITUD', 0))
+
 
 
 @sqlalchemy_http_exceptions
