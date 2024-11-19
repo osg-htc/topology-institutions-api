@@ -1,0 +1,33 @@
+services:
+  postgres:
+    image: postgres:14-alpine
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_DB=topology-institutions
+  institutions-api:
+    image: topology-institutions-api
+    depends_on:
+      - postgres
+    build:
+      dockerfile: institutions-api.Dockerfile
+      context: .
+    deploy:
+      restart_policy: # Container dies if it becomes live prior to the postgres container
+        condition: on-failure
+        delay: 3s
+        max_attempts: 5
+        window: 60s
+    environment:
+      - API_PREFIX=/api
+      - PG_USER=postgres
+      - PG_PASSWORD=postgres
+      - PG_HOST=postgres
+      - PG_PORT=5432
+      - PG_DATABASE=topology-institutions
+    ports:
+     - "8089:80"
+    volumes:
+      - ./apache.conf:/etc/httpd/conf.d/apache.conf
