@@ -9,11 +9,12 @@ from institutions_api.util.oidc_utils import OIDCUserInfo
 from institutions_api.models.api_models import InstitutionBaseModel,  OSG_ID_PREFIX, InstitutionValidatorModel
 from secrets import choice
 from string import ascii_lowercase, digits
-from institutions_api.db.metadata_mappings import INSTITUTION_SIZE_MAPPING, PROGRAM_LENGTH_MAPPING, CONTROL_MAPPING
+from institutions_api.db.metadata_mappings import INSTITUTION_SIZE_MAPPING, PROGRAM_LENGTH_MAPPING, CONTROL_MAPPING, CARNEGIE_CLASSIFICATION_MAPPING
 # TODO not the best practice to return http errors from db layer
 from fastapi import HTTPException
 
 from ..util.load_ipeds_data import load_ipeds_data
+from ..util.load_carnegie_data import load_carnegie_data
 
 # DB connection based on secrets populated by the crunchydata postgres operator
 engine = create_engine(
@@ -73,6 +74,7 @@ def get_valid_institutions() -> List[InstitutionBaseModel]:
             .order_by(Institution.name)
             .options(joinedload(Institution.identifiers))
             .options(joinedload(Institution.ipeds_metadata))
+            .options(joinedload(Institution.carnegie_metadata))
         ).unique().all()
         return [InstitutionBaseModel.from_institution(i) for i in institutions]
 
@@ -149,6 +151,16 @@ def add_institution(institution: InstitutionValidatorModel, author: OIDCUserInfo
             )
             # Add the ipeds metadata to the session
             session.add(ipeds_metadata)
+
+            # Create the InstitutionInstitutionCarnegieClassificationMetadata object to store all the metadata
+            carnegie_data = load_carnegie_data()
+            carnegie_data_row = carnegie_data.get(institution.unitid)
+            carnegie_metadata = InstitutionCarnegieClassificationMetadata(
+                classification=CARNEGIE_CLASSIFICATION_MAPPING.get(str(carnegie_data_row["basic2021"])),
+                institution=inst,
+                institution_identifier_id=institution_identifier.id
+            )
+            session.add(carnegie_metadata)
 
         session.commit()
 

@@ -7,6 +7,12 @@ from institutions_api.util.ror_utils import validate_ror_id
 from institutions_api.constants import ROR_ID_PREFIX, OSG_ID_PREFIX
 
 
+class InstitutionCarnegieClassificationMetadataModel(BaseModel):
+    classification: Optional[str] = Field(None, description="The Carnegie Classification of the institution")
+
+    class Config:
+        orm_mode = True
+
 class InstitutionIPEDSMetadataModel(BaseModel):
     website_address: Optional[str] = Field(None, description="The institution's website address")
     historically_black_college_or_university: Optional[bool] = Field(None,
@@ -30,6 +36,7 @@ class InstitutionBaseModel(BaseModel):
     longitude: Optional[float] = Field(None, description="The institutions longitude position")
     latitude: Optional[float] = Field(None, description="The institutions latitude position")
     ipeds_metadata: Optional[InstitutionIPEDSMetadataModel] = Field(None, description="The associated IPEDS metadata for this institution")
+    carnegie_metadata: Optional[InstitutionCarnegieClassificationMetadataModel] = Field(None, description="The associated Carnegie Classification metadata for this institution")
 
     @classmethod
     def from_institution(cls, inst: Institution) -> "InstitutionModel":
@@ -42,7 +49,8 @@ class InstitutionBaseModel(BaseModel):
             unitid=unitids[0] if unitids else None,
             latitude=inst.latitude,
             longitude=inst.longitude,
-            ipeds_metadata=InstitutionIPEDSMetadataModel(**inst.ipeds_metadata.__dict__) if inst.ipeds_metadata else None
+            ipeds_metadata=InstitutionIPEDSMetadataModel(**inst.ipeds_metadata.__dict__) if inst.ipeds_metadata else None,
+            carnegie_metadata=InstitutionCarnegieClassificationMetadataModel(**inst.carnegie_metadata.__dict__) if inst.carnegie_metadata else None
         )
 
 

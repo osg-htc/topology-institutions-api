@@ -38,7 +38,7 @@ class Institution(Base):
 
     identifiers: Mapped[List["InstitutionIdentifier"]] = relationship(cascade="delete")
     ipeds_metadata: Mapped["InstitutionIPEDSMetadata"] = relationship(back_populates="institution", lazy="joined")
-    carnegie_metadata: Mapped["CarnegieClassificationMetadata"] = relationship(back_populates="institution", lazy="joined")
+    carnegie_metadata: Mapped["InstitutionCarnegieClassificationMetadata"] = relationship(back_populates="institution", lazy="joined")
 
     def __init__(self, name, topology_identifier, created_by):
         self.id = uuid4()
@@ -69,7 +69,7 @@ class InstitutionIdentifier(Base):
 
     identifier_type: Mapped["IdentifierType"] = relationship()
     ipeds_metadata: Mapped["InstitutionIPEDSMetadata"] = relationship(back_populates="identifier")
-    carnegie_metadata: Mapped["CarnegieClassificationMetadata"] = relationship(back_populates="identifier")
+    carnegie_metadata: Mapped["InstitutionCarnegieClassificationMetadata"] = relationship(back_populates="identifier")
 
     def __init__(self, identifier_type: IdentifierType, identifier: str, institution_id: UUID = None):
         self.identifier_type_id = identifier_type.id
@@ -127,43 +127,43 @@ class InstitutionIPEDSMetadata(Base):
 
 
 class CarnegieClassification(enum.Enum):
-    NOT_CLASSIFIED_NOT_IN_CLASSIFICATION_UNIVERSE = "Not classified, not in classification universe"
-    ASSOCIATES_COLLEGES_HIGH_TRANSFER_HIGH_TRADITIONAL = "Associate's Colleges: High Transfer-High Traditional"
-    ASSOCIATES_COLLEGES_HIGH_TRANSFER_MIXED_TRADITIONAL_NONTRADITIONAL = "Associate's Colleges: High Transfer-Mixed Traditional/Nontraditional"
-    ASSOCIATES_COLLEGES_HIGH_TRANSFER_HIGH_NONTRADITIONAL = "Associate's Colleges: High Transfer-High Nontraditional"
-    ASSOCIATES_COLLEGES_MIXED_TRANSFER_CAREER_TECHNICAL_HIGH_TRADITIONAL = "Associate's Colleges: Mixed Transfer/Career & Technical-High Traditional"
-    ASSOCIATES_COLLEGES_MIXED_TRANSFER_CAREER_TECHNICAL_MIXED_TRADITIONAL_NONTRADITIONAL = "Associate's Colleges: Mixed Transfer/Career & Technical-Mixed Traditional/Nontraditional"
-    ASSOCIATES_COLLEGES_MIXED_TRANSFER_CAREER_TECHNICAL_HIGH_NONTRADITIONAL = "Associate's Colleges: Mixed Transfer/Career & Technical-High Nontraditional"
-    ASSOCIATES_COLLEGES_HIGH_CAREER_TECHNICAL_HIGH_TRADITIONAL = "Associate's Colleges: High Career & Technical-High Traditional"
-    ASSOCIATES_COLLEGES_HIGH_CAREER_TECHNICAL_MIXED_TRADITIONAL_NONTRADITIONAL = "Associate's Colleges: High Career & Technical-Mixed Traditional/Nontraditional"
-    ASSOCIATES_COLLEGES_HIGH_CAREER_TECHNICAL_HIGH_NONTRADITIONAL = "Associate's Colleges: High Career & Technical-High Nontraditional"
-    SPECIAL_FOCUS_TWO_YEAR_HEALTH_PROFESSIONS = "Special Focus Two-Year: Health Professions"
-    SPECIAL_FOCUS_TWO_YEAR_TECHNICAL_PROFESSIONS = "Special Focus Two-Year: Technical Professions"
-    SPECIAL_FOCUS_TWO_YEAR_ARTS_DESIGN = "Special Focus Two-Year: Arts & Design"
-    SPECIAL_FOCUS_TWO_YEAR_OTHER_FIELDS = "Special Focus Two-Year: Other Fields"
-    BACCALAUREATE_ASSOCIATES_COLLEGES_ASSOCIATES_DOMINANT = "Baccalaureate/Associate's Colleges: Associate's Dominant"
-    DOCTORAL_UNIVERSITIES_VERY_HIGH_RESEARCH_ACTIVITY = "Doctoral Universities: Very High Research Activity"
-    DOCTORAL_UNIVERSITIES_HIGH_RESEARCH_ACTIVITY = "Doctoral Universities: High Research Activity"
-    DOCTORAL_PROFESSIONAL_UNIVERSITIES = "Doctoral/Professional Universities"
-    MASTERS_COLLEGES_UNIVERSITIES_LARGER_PROGRAMS = "Master's Colleges & Universities: Larger Programs"
-    MASTERS_COLLEGES_UNIVERSITIES_MEDIUM_PROGRAMS = "Master's Colleges & Universities: Medium Programs"
-    MASTERS_COLLEGES_UNIVERSITIES_SMALL_PROGRAMS = "Master's Colleges & Universities: Small Programs"
-    BACCALAUREATE_COLLEGES_ARTS_SCIENCES_FOCUS = "Baccalaureate Colleges: Arts & Sciences Focus"
-    BACCALAUREATE_COLLEGES_DIVERSE_FIELDS = "Baccalaureate Colleges: Diverse Fields"
-    BACCALAUREATE_ASSOCIATES_COLLEGES_MIXED_BACCALAUREATE_ASSOCIATES = "Baccalaureate/Associate's Colleges: Mixed Baccalaureate/Associate's"
-    SPECIAL_FOCUS_FOUR_YEAR_FAITH_RELATED_INSTITUTIONS = "Special Focus Four-Year: Faith-Related Institutions"
-    SPECIAL_FOCUS_FOUR_YEAR_MEDICAL_SCHOOLS_CENTERS = "Special Focus Four-Year: Medical Schools & Centers"
-    SPECIAL_FOCUS_FOUR_YEAR_OTHER_HEALTH_PROFESSIONS_SCHOOLS = "Special Focus Four-Year: Other Health Professions Schools"
-    SPECIAL_FOCUS_FOUR_YEAR_RESEARCH_INSTITUTION = "Special Focus Four-Year: Research Institution"
-    SPECIAL_FOCUS_FOUR_YEAR_ENGINEERING_OTHER_TECHNOLOGY_RELATED_SCHOOLS = "Special Focus Four-Year: Engineering and Other Technology-Related Schools"
-    SPECIAL_FOCUS_FOUR_YEAR_BUSINESS_MANAGEMENT_SCHOOLS = "Special Focus Four-Year: Business & Management Schools"
-    SPECIAL_FOCUS_FOUR_YEAR_ARTS_MUSIC_DESIGN_SCHOOLS = "Special Focus Four-Year: Arts, Music & Design Schools"
-    SPECIAL_FOCUS_FOUR_YEAR_LAW_SCHOOLS = "Special Focus Four-Year: Law Schools"
-    SPECIAL_FOCUS_FOUR_YEAR_OTHER_SPECIAL_FOCUS_INSTITUTIONS = "Special Focus Four-Year: Other Special Focus Institutions"
-    TRIBAL_COLLEGES_UNIVERSITIES = "Tribal Colleges and Universities"
+    NOT_CLASSIFIED = "Not classified, not in classification universe"
+    ASSOC_HI_TRANS_HI_TRAD = "Associate's Colleges: High Transfer-High Traditional"
+    ASSOC_HI_TRANS_MIX_TRAD_NONTRAD = "Associate's Colleges: High Transfer-Mixed Traditional/Nontraditional"
+    ASSOC_HI_TRANS_HI_NONTRAD = "Associate's Colleges: High Transfer-High Nontraditional"
+    ASSOC_MIX_TRANS_CAREER_TECH_HI_TRAD = "Associate's Colleges: Mixed Transfer/Career & Technical-High Traditional"
+    ASSOC_MIX_TRANS_CAREER_TECH_MIX_TRAD_NONTRAD = "Associate's Colleges: Mixed Transfer/Career & Technical-Mixed Traditional/Nontraditional"
+    ASSOC_MIX_TRANS_CAREER_TECH_HI_NONTRAD = "Associate's Colleges: Mixed Transfer/Career & Technical-High Nontraditional"
+    ASSOC_HI_CAREER_TECH_HI_TRAD = "Associate's Colleges: High Career & Technical-High Traditional"
+    ASSOC_HI_CAREER_TECH_MIX_TRAD_NONTRAD = "Associate's Colleges: High Career & Technical-Mixed Traditional/Nontraditional"
+    ASSOC_HI_CAREER_TECH_HI_NONTRAD = "Associate's Colleges: High Career & Technical-High Nontraditional"
+    SPEC_FOCUS_2YR_HEALTH_PROF = "Special Focus Two-Year: Health Professions"
+    SPEC_FOCUS_2YR_TECH_PROF = "Special Focus Two-Year: Technical Professions"
+    SPEC_FOCUS_2YR_ARTS_DESIGN = "Special Focus Two-Year: Arts & Design"
+    SPEC_FOCUS_2YR_OTHER_FIELDS = "Special Focus Two-Year: Other Fields"
+    BACC_ASSOC_DOMINANT = "Baccalaureate/Associate's Colleges: Associate's Dominant"
+    DOCTORAL_VERY_HI_RESEARCH = "Doctoral Universities: Very High Research Activity"
+    DOCTORAL_HI_RESEARCH = "Doctoral Universities: High Research Activity"
+    DOCTORAL_PROF_UNIV = "Doctoral/Professional Universities"
+    MASTERS_LARGER_PROG = "Master's Colleges & Universities: Larger Programs"
+    MASTERS_MEDIUM_PROG = "Master's Colleges & Universities: Medium Programs"
+    MASTERS_SMALL_PROG = "Master's Colleges & Universities: Small Programs"
+    BACC_ARTS_SCI_FOCUS = "Baccalaureate Colleges: Arts & Sciences Focus"
+    BACC_DIVERSE_FIELDS = "Baccalaureate Colleges: Diverse Fields"
+    BACC_ASSOC_MIXED = "Baccalaureate/Associate's Colleges: Mixed Baccalaureate/Associate's"
+    SPEC_FOCUS_4YR_FAITH = "Special Focus Four-Year: Faith-Related Institutions"
+    SPEC_FOCUS_4YR_MED_SCHOOLS = "Special Focus Four-Year: Medical Schools & Centers"
+    SPEC_FOCUS_4YR_OTHER_HEALTH = "Special Focus Four-Year: Other Health Professions Schools"
+    SPEC_FOCUS_4YR_RESEARCH = "Special Focus Four-Year: Research Institution"
+    SPEC_FOCUS_4YR_ENG_TECH = "Special Focus Four-Year: Engineering and Other Technology-Related Schools"
+    SPEC_FOCUS_4YR_BUS_MGMT = "Special Focus Four-Year: Business & Management Schools"
+    SPEC_FOCUS_4YR_ARTS_MUSIC_DESIGN = "Special Focus Four-Year: Arts, Music & Design Schools"
+    SPEC_FOCUS_4YR_LAW = "Special Focus Four-Year: Law Schools"
+    SPEC_FOCUS_4YR_OTHER = "Special Focus Four-Year: Other Special Focus Institutions"
+    TRIBAL_COLLEGES = "Tribal Colleges and Universities"
 
 
-class CarnegieClassificationMetadata(Base):
+class InstitutionCarnegieClassificationMetadata(Base):
     """ORM for Carnegie Classification metadata"""
     __tablename__ = 'institution_carnegie_classification_metadata'
 
