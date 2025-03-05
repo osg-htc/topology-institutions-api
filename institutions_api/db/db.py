@@ -107,60 +107,7 @@ def add_institution(institution: InstitutionValidatorModel, author: OIDCUserInfo
 
         # Add IPEDS metadata if the institution has an unitid
         if institution.unitid:
-            # Load the unitid csv file
-            ipeds_data = load_ipeds_data()  # Use cached data
-            ipeds_data_row = ipeds_data.get(institution.unitid)
-
-            if ipeds_data_row is None:
-                raise ValueError("Invalid unit ID: not found in the IPEDS data system")
-
-            # Convert to float
-            latitude = float(ipeds_data_row.get('LATITUDE', 0))
-            longitude = float(ipeds_data_row.get('LONGITUD', 0))
-
-            # Update latitude and longitude for the institution
-            inst.latitude = latitude
-            inst.longitude = longitude
-
-            # Create or retrieve the InstitutionIdentifier for unitid
-            unitid_identifier_type = session.scalar(select(IdentifierType).where(IdentifierType.name == 'unitid'))
-            if not unitid_identifier_type:
-                raise HTTPException(400, "IdentifierType for 'unitid' not found")
-
-            # Create a new InstitutionIdentifier for the unitid
-            institution_identifier = InstitutionIdentifier(
-                identifier_type=unitid_identifier_type,
-                identifier=institution.unitid,
-                institution_id=inst.id
-            )
-            session.add(institution_identifier)
-            session.flush() # this flush makes sure that the institution_identifier.id is populated
-            # so the id can be assigned to the ipeds_metadata so they are linked
-
-            # Create the InstitutionIPEDSMetadata object to store all the metadata
-            ipeds_metadata = InstitutionIPEDSMetadata(
-                website_address=ipeds_data_row['WEBADDR'],
-                historically_black_college_or_university=ipeds_data_row.get('HBCU') == 1,
-                tribal_college_or_university=ipeds_data_row.get('TRIBAL') == 1,
-                program_length=PROGRAM_LENGTH_MAPPING.get(str(ipeds_data_row.get('ICLEVEL'))),
-                control=CONTROL_MAPPING.get(str(ipeds_data_row.get('CONTROL'))),
-                state=ipeds_data_row.get('STABBR'),
-                institution_size=INSTITUTION_SIZE_MAPPING.get(str(ipeds_data_row.get('INSTSIZE'))),
-                institution=inst,
-                institution_identifier_id=institution_identifier.id
-            )
-            # Add the ipeds metadata to the session
-            session.add(ipeds_metadata)
-
-            # Create the InstitutionInstitutionCarnegieClassificationMetadata object to store all the metadata
-            carnegie_data = load_carnegie_data()
-            carnegie_data_row = carnegie_data.get(institution.unitid)
-            carnegie_metadata = InstitutionCarnegieClassificationMetadata(
-                classification=CARNEGIE_CLASSIFICATION_MAPPING.get(str(carnegie_data_row["basic2021"])),
-                institution=inst,
-                institution_identifier_id=institution_identifier.id
-            )
-            session.add(carnegie_metadata)
+            _update_institution_unit_id(session, inst, institution.unitid)
 
         session.commit()
 
@@ -193,18 +140,26 @@ def _update_institution_unit_id(session: Session, institution: Institution, unit
     if not unit_id_type:
         raise HTTPException(400, "IdentifierType for 'unitid' not found")
 
+    # If the institution has a existing unitid, but the input is null, delete the existing unitid
     if (not unit_id or unit_id.strip() == "") and institution.ipeds_metadata:
-        # delete any existing unit ids if null in the text fields
+        session.delete(institution.carnegie_metadata)
         session.delete(institution.ipeds_metadata)
         session.execute(delete(InstitutionIdentifier)
             .where(InstitutionIdentifier.institution_id == institution.id)
             .where(InstitutionIdentifier.identifier_type_id == unit_id_type.id))
+
     else:
         ipeds_data = load_ipeds_data()  # load ipeds data
         ipeds_data_row = ipeds_data.get(unit_id)
 
         if ipeds_data_row is None:
             raise HTTPException(400, f"IPEDS data for unit ID {unit_id} not found")
+
+        # Update the latitude and longitude for the institution
+        if "LATITUDE" in ipeds_data_row and "LONGITUD" in ipeds_data_row:
+            institution.latitude = float(ipeds_data_row.get('LATITUDE'))
+            institution.longitude = float(ipeds_data_row.get('LONGITUD'))
+            session.commit()
 
         # Check if the institution already has an unitid
         existing_unitid = [i for i in institution.identifiers if i.identifier_type_id == unit_id_type.id]
@@ -224,7 +179,8 @@ def _update_institution_unit_id(session: Session, institution: Institution, unit
             ipeds_metadata.institution_size = INSTITUTION_SIZE_MAPPING.get(str(ipeds_data_row.get('INSTSIZE')))
             session.add(ipeds_metadata)
 
-        else: # if the institution doesn't have an unitid, create a new one
+        # if the institution doesn't have an unitid, create a new one
+        else:
             # Create a new InstitutionIdentifier for unitid if it doesn't exist
             new_unitid = InstitutionIdentifier(identifier_type=unit_id_type, identifier=unit_id,
                                                institution_id=institution.id)
@@ -245,6 +201,15 @@ def _update_institution_unit_id(session: Session, institution: Institution, unit
             )
             session.add(ipeds_metadata)
 
+            # Create the InstitutionInstitutionCarnegieClassificationMetadata object to store all the metadata
+            carnegie_data = load_carnegie_data()
+            carnegie_data_row = carnegie_data.get(int(unit_id))
+            carnegie_metadata = InstitutionCarnegieClassificationMetadata(
+                classification=CARNEGIE_CLASSIFICATION_MAPPING.get(str(carnegie_data_row["basic2021"])),
+                institution=institution,
+                institution_identifier_id=new_unitid.id
+            )
+            session.add(carnegie_metadata)
 
 
 @sqlalchemy_http_exceptions
@@ -258,16 +223,16 @@ def update_institution(short_id: str, institution: InstitutionValidatorModel, au
             return HTTPException(404, f"No institution found with id {short_id}")
 
         to_update.name = institution.name
-        _update_institution_ror_id(session, to_update, institution.ror_id)
-        _update_institution_unit_id(session, to_update, institution.unitid)
         to_update.updated_by = author.id
         to_update.updated = datetime.now()
         to_update.valid = True
         to_update.latitude = institution.latitude
         to_update.longitude = institution.longitude
-
+        _update_institution_ror_id(session, to_update, institution.ror_id)
+        _update_institution_unit_id(session, to_update, institution.unitid)
 
         session.commit()
+
 
 @sqlalchemy_http_exceptions
 def invalidate_institution(short_id: str, author: OIDCUserInfo):
