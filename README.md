@@ -95,20 +95,3 @@ docker push hub.opensciencegrid.org/opensciencegrid/topology-institutions-ui:$TA
 ```shell
 docker run -p  --env-file .env hub.opensciencegrid.org/opensciencegrid/topology-institutions-ui:$TAG
 ```
-
-```
-Northwestern Medicine ! Not a University
-University of Colorado Anschutz Medical Campus
-Northeastern University
-Purdue University West Lafayette
-Purdue University Fort Wayne
-Pennsylvania State University
-Kennesaw State University
-Indiana University
-University of Maine System ! Not a University
-University of Hawaii System ! Not a University
-Louisiana State University Health Sciences Center New Orleans
-Nevada System of Higher Education ! Not a University
-Johns Hopkins University Applied Physics Laboratory ! Not a University
-University of Nebraska System ! Not a University
-```
