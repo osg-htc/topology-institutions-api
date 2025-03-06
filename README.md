@@ -7,6 +7,25 @@ containers, using Apache to reverse proxy requests to the appropriate destinatio
 Read operations to the API are unauthenticated, while write operations are authenticated 
 via OIDC. 
 
+### Mapped Data
+
+The institutions database uses two data sources for mapping in institutional metadata
+
+#### NCES Data
+
+https://nces.ed.gov/ipeds/datacenter/DataFiles.aspx?gotoReportId=7&fromIpeds=true&sid=9358f236-c875-4a91-b857-00c03a00b65a&rtid=7
+
+HD2023 
+
+#### Carnegie Classifications
+
+##### 2021 Public Data File
+
+Alterations:
+- Updated `The Pennsylvania State University` to have id `214777` matching the NCES data
+
+https://carnegieclassifications.acenet.edu/carnegie-classification/resources/
+
 
 ### Webserver
 
@@ -75,4 +94,21 @@ docker push hub.opensciencegrid.org/opensciencegrid/topology-institutions-ui:$TA
 
 ```shell
 docker run -p  --env-file .env hub.opensciencegrid.org/opensciencegrid/topology-institutions-ui:$TAG
+```
+
+```
+Northwestern Medicine ! Not a University
+University of Colorado Anschutz Medical Campus
+Northeastern University
+Purdue University West Lafayette
+Purdue University Fort Wayne
+Pennsylvania State University
+Kennesaw State University
+Indiana University
+University of Maine System ! Not a University
+University of Hawaii System ! Not a University
+Louisiana State University Health Sciences Center New Orleans
+Nevada System of Higher Education ! Not a University
+Johns Hopkins University Applied Physics Laboratory ! Not a University
+University of Nebraska System ! Not a University
 ```
