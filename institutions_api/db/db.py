@@ -150,8 +150,12 @@ def _update_institution_unit_id(session: Session, institution: Institution, unit
 
     # If the institution has a existing unitid, but the input is null, delete the existing unitid
     if (not unit_id or unit_id.strip() == "") and institution.ipeds_metadata:
-        session.delete(institution.carnegie_metadata)
-        session.delete(institution.ipeds_metadata)
+        if institution.carnegie_metadata:
+            session.delete(institution.carnegie_metadata)
+
+        if institution.ipeds_metadata:
+            session.delete(institution.ipeds_metadata)
+
         session.execute(delete(InstitutionIdentifier)
             .where(InstitutionIdentifier.institution_id == institution.id)
             .where(InstitutionIdentifier.identifier_type_id == unit_id_type.id))
