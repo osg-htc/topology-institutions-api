@@ -216,7 +216,7 @@ def _update_institution_unit_id(session: Session, institution: Institution, unit
             carnegie_2025_data_row = carnegie_2025_data.get(int(unit_id))
             carnegie_metadata = InstitutionCarnegieClassificationMetadata(
                 classification2021=CARNEGIE_CLASSIFICATION_MAPPING.get(str(carnegie_data_row["basic2021"]), NULL),
-                classification2025=RESEARCH_ACTIVITY_DESIGNATION_2025_MAPPING.get(str(carnegie_2025_data_row["basic2021"]), NULL),
+                classification2025=RESEARCH_ACTIVITY_DESIGNATION_2025_MAPPING.get(str(carnegie_2025_data_row["2025 Research Activity Designation"]), NULL),
                 institution=institution,
                 institution_identifier_id=new_unitid.id
             )

@@ -61,7 +61,7 @@ route prefix to the frontend's deployment.
 Running the following will build and deploy this image in a location that it can be pulled from Tiger.
 
 ```shell
-TAG=0.2.5
+TAG=0.2.6
 ```
 
 ```shell
