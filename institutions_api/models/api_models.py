@@ -8,10 +8,12 @@ from institutions_api.constants import ROR_ID_PREFIX, OSG_ID_PREFIX
 
 
 class InstitutionCarnegieClassificationMetadataModel(BaseModel):
-    classification: Optional[str] = Field(None, description="The Carnegie Classification of the institution")
+    classification2021: Optional[str] = Field(None, description="The 2021 Carnegie Classification of the institution")
+    classification2025: Optional[str] = Field(None, description="The 2021 Carnegie Classification of the institution")
 
     class Config:
         orm_mode = True
+
 
 class InstitutionIPEDSMetadataModel(BaseModel):
     website_address: Optional[str] = Field(None, description="The institution's website address")

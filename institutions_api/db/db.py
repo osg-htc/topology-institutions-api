@@ -1,3 +1,4 @@
+from psycopg2.sql import NULL
 from sqlalchemy import create_engine, select, delete
 from sqlalchemy.orm import sessionmaker, Session, joinedload
 from os import environ
@@ -9,12 +10,19 @@ from institutions_api.util.oidc_utils import OIDCUserInfo
 from institutions_api.models.api_models import InstitutionBaseModel,  OSG_ID_PREFIX, InstitutionValidatorModel
 from secrets import choice
 from string import ascii_lowercase, digits
-from institutions_api.db.metadata_mappings import INSTITUTION_SIZE_MAPPING, PROGRAM_LENGTH_MAPPING, CONTROL_MAPPING, CARNEGIE_CLASSIFICATION_MAPPING
+from institutions_api.db.metadata_mappings import (
+    INSTITUTION_SIZE_MAPPING,
+    PROGRAM_LENGTH_MAPPING,
+    CONTROL_MAPPING,
+    CARNEGIE_CLASSIFICATION_MAPPING,
+    RESEARCH_ACTIVITY_DESIGNATION_2025_MAPPING
+)
 # TODO not the best practice to return http errors from db layer
 from fastapi import HTTPException
 
 from ..util.load_ipeds_data import load_ipeds_data
 from ..util.load_carnegie_data import load_carnegie_data
+from ..util.load_carnegie_2025_data import load_carnegie_2025_data
 
 # DB connection based on secrets populated by the crunchydata postgres operator
 engine = create_engine(
@@ -204,8 +212,11 @@ def _update_institution_unit_id(session: Session, institution: Institution, unit
             # Create the InstitutionInstitutionCarnegieClassificationMetadata object to store all the metadata
             carnegie_data = load_carnegie_data()
             carnegie_data_row = carnegie_data.get(int(unit_id))
+            carnegie_2025_data = load_carnegie_2025_data()
+            carnegie_2025_data_row = carnegie_2025_data.get(int(unit_id))
             carnegie_metadata = InstitutionCarnegieClassificationMetadata(
-                classification=CARNEGIE_CLASSIFICATION_MAPPING.get(str(carnegie_data_row["basic2021"])),
+                classification2021=CARNEGIE_CLASSIFICATION_MAPPING.get(str(carnegie_data_row["basic2021"]), NULL),
+                classification2025=RESEARCH_ACTIVITY_DESIGNATION_2025_MAPPING.get(str(carnegie_2025_data_row["basic2021"]), NULL),
                 institution=institution,
                 institution_identifier_id=new_unitid.id
             )

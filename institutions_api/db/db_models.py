@@ -163,6 +163,12 @@ class CarnegieClassification(enum.Enum):
     TRIBAL_COLLEGES = "Tribal Colleges and Universities"
 
 
+class CarnegieClassification2025(enum.Enum):
+    RESEARCH_1 = "Research 1: Very High Spending and Doctorate Production"
+    RESEARCH_2 = "Research 2: High Spending and Doctorate Production"
+    RESEARCH_COLLEGES_AND_UNIVERSITIES = "Research Colleges and Universities"
+
+
 class InstitutionCarnegieClassificationMetadata(Base):
     """ORM for Carnegie Classification metadata"""
     __tablename__ = 'institution_carnegie_classification_metadata'
@@ -170,7 +176,8 @@ class InstitutionCarnegieClassificationMetadata(Base):
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid4)
 
     # Carnegie Classification fields
-    classification = Column(Enum(CarnegieClassification, name="classification"))
+    classification2021 = Column(Enum(CarnegieClassification, name="classification2021"))
+    classification2025 = Column(Enum(CarnegieClassification2025, name="classification2025"))
 
     # Add foreign key to the InstitutionIdentifier
     institution_id: Mapped[UUID] = mapped_column(ForeignKey('institution.id'))

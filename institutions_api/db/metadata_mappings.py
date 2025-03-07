@@ -71,3 +71,9 @@ CARNEGIE_CLASSIFICATION_MAPPING = {
     "32": "SPEC_FOCUS_4YR_OTHER",
     "33": "TRIBAL_COLLEGES"
 }
+
+RESEARCH_ACTIVITY_DESIGNATION_2025_MAPPING = {
+    "Research 1: Very High Spending and Doctorate Production": "RESEARCH_1",
+    "Research 2: High Spending and Doctorate Production": "RESEARCH_2",
+    "Research Colleges and Universities": "RESEARCH_COLLEGES_AND_UNIVERSITIES"
+}

@@ -1,6 +1,9 @@
 import pandas as pd
 
+from functools import lru_cache
 
+
+@lru_cache(maxsize=1)
 def load_carnegie_data():
     carnegie_df = pd.read_excel(
         "institutions_api/db/migrations/add_carnegie_metadata_1/data/CCIHE2021-PublicData.xlsx",
