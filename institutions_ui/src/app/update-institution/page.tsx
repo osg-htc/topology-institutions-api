@@ -27,11 +27,45 @@ export default function Page() {
 
   }, []);
 
+const validateForm = (institution: Institution | undefined) => {
+  const validationErrors: { [key: string]: string } = {};
+
+  // Check if name is empty
+  if (!institution?.name) {
+    validationErrors.name = 'Name is required';
+  }
+
+  if (institution?.unitid && !/^\d{6}$/.test(institution.unitid)) {
+    validationErrors.unitid = 'Unit ID must be 6 digits long';
+  }
+
+  // Check if ROR ID is a valid URL
+  if (
+    institution?.ror_id &&
+    !/^https:\/\/ror\.org\/.+$/.test(institution?.ror_id as string)
+  ) {
+    validationErrors.ror_id =
+      'Invalid ROR ID format (must start with https://ror.org/)';
+  }
+
+  // Check if longitude and latitude are numbers
+  if (institution?.longitude && isNaN(parseFloat(institution?.longitude as string))) {
+    validationErrors.longitude = 'Longitude must be a number';
+  }
+
+  if (institution?.latitude && isNaN(parseFloat(institution?.latitude as string))) {
+    validationErrors.latitude = 'Latitude must be a number';
+  }
+
+  return validationErrors
+};
+
   // Handle changes to the form fields
   const handleFieldChange = (
     e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>,
     field: keyof Institution
   ) => {
+    const value = e.target.value;
     setInstitution((prev: Institution | undefined) => {
 
       // This can't happen
@@ -39,6 +73,20 @@ export default function Page() {
 
       return { ...prev, [field]: e.target.value };
     })
+
+        // Clear errors when valid input is provided
+        if (field === 'name' && value && errors.name) {
+          setErrors(prev => ({...prev, name: ''}));
+        } else if (field === 'ror_id' && (!value || /^https:\/\/ror\.org\/.+$/.test(value)) && errors.ror_id) {
+          setErrors(prev => ({...prev, ror_id: ''}));
+        } else if (field === 'unitid' && (!value || /^\d{6}$/.test(value)) && errors.unitid) {
+          setErrors(prev => ({...prev, unitid: ''}));
+        } else if (field === 'longitude' && (!value || !isNaN(parseFloat(value))) && errors.longitude) {
+          setErrors(prev => ({...prev, longitude: ''}));
+        } else if (field === 'latitude' && (!value || !isNaN(parseFloat(value))) && errors.latitude) {
+          setErrors(prev => ({...prev, latitude: ''}));
+        }
+
   };
 
   // Save the changes
@@ -53,14 +101,16 @@ export default function Page() {
     }
 
     try {
-      await fetch(`${apiUrl}/institutions/${id}`, {
+      const response = await fetch(`${apiUrl}/institutions/${id}`, {
         method: 'PUT',
         body: JSON.stringify(institution),
         headers: {
           'Content-Type': 'application/json',
         },
       });
-      alert('Institution updated successfully');
+      if(response.ok){
+        alert('Institution updated successfully');
+      }
     } catch (error) {
       console.error('Error updating institution:', error);
       alert('Error updating institution');
@@ -152,36 +202,3 @@ export default function Page() {
     </>
   );
 }
-
-const validateForm = (institution: Institution | undefined) => {
-  const validationErrors: { [key: string]: string } = {};
-
-  // Check if name is empty
-  if (!institution?.name) {
-    validationErrors.name = 'Name is required';
-  }
-
-  if (institution?.unitid && !/^\d{6}$/.test(institution.unitid)) {
-    validationErrors.unitid = 'Unit ID must be 6 digits long';
-  }
-
-  // Check if ROR ID is a valid URL
-  if (
-    institution?.ror_id &&
-    !/^https:\/\/ror\.org\/.+$/.test(institution?.ror_id as string)
-  ) {
-    validationErrors.ror_id =
-      'Invalid ROR ID format (must start with https://ror.org/)';
-  }
-
-  // Check if longitude and latitude are numbers
-  if (institution?.longitude && isNaN(parseFloat(institution?.longitude as string))) {
-    validationErrors.longitude = 'Longitude must be a number';
-  }
-
-  if (institution?.latitude && isNaN(parseFloat(institution?.latitude as string))) {
-    validationErrors.latitude = 'Latitude must be a number';
-  }
-
-  return validationErrors
-};
