@@ -9,7 +9,7 @@ export default function NavBar() {
             Institutions
           </Typography>
         </a>
-        <a href='/ui/add-institution.html'>
+        <a href='/ui/add-institution'>
           <Button color='inherit'>Add Institution</Button>
         </a>
       </Toolbar>

@@ -19,7 +19,8 @@ export default function InstitutionList() {
 
   useEffect(() => {
     (async () => {
-        const response = await fetch('/api/institution_ids');
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+        const response = await fetch(`${apiUrl}/institution_ids`);
         const data = await response.json();
         setData(data);
     })()
@@ -55,7 +56,7 @@ export default function InstitutionList() {
             data.map((institution) => (
               <TableRow key={institution.id}>
                 <TableCell>
-                  <a href={`/ui/update-institution.html?id=${extractShortId(institution.id)}`}>
+                  <a href={`/ui/update-institution?id=${extractShortId(institution.id)}`}>
                     <IconButton
                       aria-label='edit'
                     >

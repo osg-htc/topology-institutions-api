@@ -26,6 +26,7 @@ export default function AddInstitution() {
 
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [disabled, setDisabled] = useState(false);
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
   const validateForm = () => {
     const validationErrors: { [key: string]: string } = {};
@@ -88,7 +89,7 @@ export default function AddInstitution() {
     };
 
     const response = await fetch(
-      '/api/institutions',
+      `${apiUrl}/institutions`,
       {
         method: 'POST',
         body: JSON.stringify(institutionData),

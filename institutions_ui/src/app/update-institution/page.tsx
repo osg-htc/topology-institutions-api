@@ -16,9 +16,11 @@ export default function Page() {
   const [institution, setInstitution] = useState<Institution>();
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
 
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+
   useEffect(() => {
     (async () => {
-      const response = await fetch(`/api/institutions/${id}`)
+      const response = await fetch(`${apiUrl}/institutions/${id}`)
       const data = await response.json();
       setInstitution(data);
     })()
@@ -51,7 +53,7 @@ export default function Page() {
     }
 
     try {
-      await fetch(`/api/institutions/${id}`, {
+      await fetch(`${apiUrl}/institutions/${id}`, {
         method: 'PUT',
         body: JSON.stringify(institution),
         headers: {

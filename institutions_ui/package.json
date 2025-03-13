@@ -3,10 +3,10 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
-    "build": "next build",
+    "dev": "NEXT_PUBLIC_API_URL=http://localhost:8089 next dev",
+    "build": "NEXT_PUBLIC_API_URL=/api next build",
     "export": "next export",
-    "start": "next start",
+    "start": "NEXT_PUBLIC_API_URL=/api next start",
     "lint": "next lint",
     "format:fix": "prettier --write ."
   },
