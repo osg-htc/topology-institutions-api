@@ -1,5 +1,5 @@
 'use client';
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import EditIcon from '@mui/icons-material/Edit';
 import {
   IconButton,
@@ -10,21 +10,11 @@ import {
   TableHead,
   TableRow,
 } from '@mui/material';
-import NavBar from '@/app/components/NavBar';
 
-import { Institution } from '@/app';
+import { useInstitution } from './context/InstitutionContext';
 
 export default function InstitutionList() {
-  const [data, setData] = useState<Institution[]>([]);
-
-  useEffect(() => {
-    (async () => {
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL;
-        const response = await fetch(`${apiUrl}/institution_ids`);
-        const data = await response.json();
-        setData(data);
-    })()
-  }, []);
+  const { data } = useInstitution();
 
   const extractShortId = (fullId: string) => {
     const parts = fullId.split('/');
@@ -34,7 +24,6 @@ export default function InstitutionList() {
 
   return (
     <TableContainer>
-      <NavBar></NavBar>
       <Table>
         <TableHead>
           <TableRow>

@@ -2,6 +2,8 @@ import type { Metadata } from 'next';
 import {Suspense} from "react";
 import localFont from 'next/font/local';
 import './globals.css';
+import NavBar from '@/app/components/NavBar';
+import { InstitutionProvider } from "@/app/context/InstitutionContext";
 
 const geistSans = localFont({
   src: './fonts/GeistVF.woff',
@@ -27,9 +29,10 @@ export default function RootLayout({
   return (
     <html lang='en' suppressHydrationWarning>
       <body className={`${geistSans.variable} ${geistMono.variable}`} suppressHydrationWarning>
-      <Suspense>
-        {children}
-      </Suspense>
+        <InstitutionProvider>
+          <NavBar />
+          <Suspense>{children}</Suspense>
+        </InstitutionProvider>
       </body>
     </html>
   );
