@@ -188,7 +188,7 @@ const validateForm = (institution: Institution | undefined) => {
               </Item>
 
               <Item>
-                <Button variant='contained' color='primary' onClick={handleSave}>
+                <Button variant='contained' sx={{bgcolor:'black'}} onClick={handleSave}>
                   Save
                 </Button>
               </Item>

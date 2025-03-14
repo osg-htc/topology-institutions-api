@@ -72,7 +72,7 @@ export default function InstitutionList() {
             displayData.map((institution) => (
               <TableRow key={institution.id}>
                 <TableCell>
-                  <Link href={`/ui/update-institution?id=${extractShortId(institution.id)}`}>
+                  <Link href={`/update-institution?id=${extractShortId(institution.id)}`}>
                     <IconButton
                       aria-label='edit'
                     >

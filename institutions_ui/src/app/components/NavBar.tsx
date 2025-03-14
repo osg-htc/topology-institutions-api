@@ -87,7 +87,14 @@ export default function NavBar() {
             </Search>
           </Box>
           <Link href='/add-institution'>
-            <Button color='inherit'>Add Institution</Button>
+          <Button 
+              sx={{
+                color: 'white',
+                '&:hover': {
+                  backgroundColor: 'rgba(255, 255, 255, 0.2)',
+                }
+              }}
+            >Add Institution</Button>
           </Link>
         </Toolbar>
       </AppBar>

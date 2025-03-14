@@ -226,13 +226,9 @@ export default function AddInstitution() {
               />
             </Item>
             <Item>
-              {/* <Alert severity="success" onClose={() => {}} > */}
-
-              
-                <Button variant='contained' color='primary' type='submit'>
+                <Button variant='contained' sx={{bgcolor:'black'}} type='submit'>
                   Submit
                 </Button>
-              {/* </Alert> */}
             </Item>
           </form>
           <Item></Item>
