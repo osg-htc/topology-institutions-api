@@ -11,7 +11,7 @@ import { Item } from '@/app/components/Item';
 export default function Page() {
 
   const searchParams = useSearchParams();
-  const id = searchParams.get('id'); // receiving the id from the URL
+  const id = searchParams?.get('id'); // receiving the id from the URL
 
   const [institution, setInstitution] = useState<Institution>();
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
