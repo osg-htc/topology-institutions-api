@@ -3,7 +3,7 @@ import { Box, AppBar, Toolbar, Typography, Button, styled, alpha, InputBase } fr
 import SearchIcon from '@mui/icons-material/Search';
 import { useInstitution } from '@/app/context/InstitutionContext';
 import React, { useState, useEffect } from 'react';
-import { Institution } from '@/app';
+import Link from 'next/link';
 
 const Search = styled('div')(({ theme }) => ({
   position: 'relative',
@@ -15,6 +15,7 @@ const Search = styled('div')(({ theme }) => ({
   marginRight: theme.spacing(2),
   marginLeft: 0,
   width: '100%',
+  flexGrow: 1,
   [theme.breakpoints.up('sm')]: {
     marginLeft: theme.spacing(3),
     width: 'auto',
@@ -48,7 +49,7 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
 export default function NavBar() {
 
   const { data, setFilteredInstitutions } = useInstitution()
-  const [searchTerm, setSearchterm] = useState<string>('');
+  const [searchTerm, setSearchTerm] = useState<string>('');
 
   useEffect(() => {
     if(searchTerm === '') {
@@ -60,29 +61,31 @@ export default function NavBar() {
   }, [searchTerm, data, setFilteredInstitutions])
 
   const HandleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchterm(e.target.value);
+    setSearchTerm(e.target.value);
   }
 
   return (
     <Box>
-      <AppBar position='static'>
-        <Toolbar>
-          <a href={"/ui"} style={{ flexGrow: 1 }}>
+      <AppBar position='static' sx={{bgcolor: 'black'}}>
+        <Toolbar sx={{display: 'flex', justifyContent: 'space-between'}}>
+          <Link href={"/ui"}>
             <Typography variant='h6'>
               Topology Institutions API
             </Typography>
-          </a>
-          <Search>
-            <SearchIconWrapper>
-              <SearchIcon />
-            </SearchIconWrapper>
-            <StyledInputBase
-              placeholder="Search…"
-              inputProps={{ 'aria-label': 'search' }}
-              value={searchTerm}
-              onChange={HandleSearch}
-            />
-          </Search>
+          </Link>
+          <Box sx={{display: 'flex', flexGrow: 1, alignItems: 'center'}}>
+            <Search>
+              <SearchIconWrapper>
+                <SearchIcon />
+              </SearchIconWrapper>
+              <StyledInputBase
+                placeholder="Search…"
+                inputProps={{ 'aria-label': 'search' }}
+                value={searchTerm}
+                onChange={HandleSearch}
+              />
+            </Search>
+          </Box>
           <a href='/ui/add-institution'>
             <Button color='inherit'>Add Institution</Button>
           </a>

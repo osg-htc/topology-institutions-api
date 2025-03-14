@@ -5,12 +5,15 @@ import { Institution } from '@/app';
 
 interface InstitutionContextType {
     data: Institution[];
+    filteredInstitutions: Institution[];
+    setFilteredInstitutions: React.Dispatch<React.SetStateAction<Institution[]>>;
 }
 
 const InstitutionContext = createContext<InstitutionContextType | undefined>(undefined)
 
 export function InstitutionProvider( {children}: { children: ReactNode}) {
     const [data, setData] = useState<Institution[]>([]);
+    const [filteredInstitutions, setFilteredInstitutions] = useState<Institution[]>([]);
     const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
     useEffect(() => {
@@ -19,13 +22,14 @@ export function InstitutionProvider( {children}: { children: ReactNode}) {
             const response = await fetch(`${apiUrl}/institution_ids`);
             const institutions = await response.json();
             setData(institutions);
+            setFilteredInstitutions(institutions);
         }
         fetchData();
 
     }, [])
 
     return(
-        <InstitutionContext.Provider value={{data}}>
+        <InstitutionContext.Provider value={{data, filteredInstitutions, setFilteredInstitutions}}>
             {children}
         </InstitutionContext.Provider>
     )
