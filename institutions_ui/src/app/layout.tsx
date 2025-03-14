@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import {Suspense} from "react";
 import localFont from 'next/font/local';
-import './globals.css';
+import './styles/globals.css';
 import NavBar from '@/app/components/NavBar';
 import { InstitutionProvider } from "@/app/context/InstitutionContext";
 
@@ -18,7 +18,7 @@ const geistMono = localFont({
 
 export const metadata: Metadata = {
   title: 'Topology Institution API',
-  description: 'Topology Institution API',
+  description: 'Topology Institution API'
 };
 
 export default function RootLayout({

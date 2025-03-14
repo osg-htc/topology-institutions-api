@@ -2,6 +2,8 @@
 import React from 'react';
 import EditIcon from '@mui/icons-material/Edit';
 import {
+  Tooltip,
+  Box,
   IconButton,
   Table,
   TableBody,
@@ -9,18 +11,28 @@ import {
   TableContainer,
   TableHead,
   TableRow,
+  Checkbox
 } from '@mui/material';
-
+import { pink } from '@mui/material/colors';
 import { useInstitution } from './context/InstitutionContext';
+import { useState } from 'react';
+import Link from 'next/link';
 
 export default function InstitutionList() {
   const { filteredInstitutions } = useInstitution();
+  const [showOnlyWithUnitIds, setShowOnlyWithUnitIds] = useState<boolean>(false);
 
   const extractShortId = (fullId: string) => {
     const parts = fullId.split('/');
     const shortId = parts[parts.length - 1];
     return shortId.endsWith('/') ? shortId.slice(0, -1) : shortId;
   };
+
+  const handleUnitIdFilter = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setShowOnlyWithUnitIds(e.target.checked);
+  };
+
+  const displayData = showOnlyWithUnitIds ? filteredInstitutions.filter((institution) => institution.unitid !== null) : filteredInstitutions;
 
   return (
     <TableContainer>
@@ -29,6 +41,21 @@ export default function InstitutionList() {
           <TableRow>
             <TableCell>Name</TableCell>
             <TableCell>ID</TableCell>
+            <TableCell>
+              <Box sx={{ display: 'flex', alignItems: 'center', whiteSpace: 'nowrap' }}>
+              <span>Unit ID</span>
+              <Tooltip title="Check to show institutions with Unit ID only">
+                  <Checkbox 
+                  size="small" 
+                  sx={{color: pink[800],'&.Mui-checked': {color: pink[600],}, marginRight: 1}}
+                  inputProps={{ 'aria-label': 'controlled' }}
+                  onChange={handleUnitIdFilter}
+                  checked={showOnlyWithUnitIds}
+                  /> 
+                </Tooltip>
+                
+              </Box>
+            </TableCell>
             <TableCell>Website</TableCell>
             <TableCell>Historically Black College or University</TableCell>
             <TableCell>Tribal College or University</TableCell>
@@ -41,20 +68,21 @@ export default function InstitutionList() {
           </TableRow>
         </TableHead>
         <TableBody>
-          {filteredInstitutions?.length > 0 ? (
-            filteredInstitutions.map((institution) => (
+          {displayData?.length > 0 ? (
+            displayData.map((institution) => (
               <TableRow key={institution.id}>
                 <TableCell>
-                  <a href={`/ui/update-institution?id=${extractShortId(institution.id)}`}>
+                  <Link href={`/ui/update-institution?id=${extractShortId(institution.id)}`}>
                     <IconButton
                       aria-label='edit'
                     >
                       <EditIcon />
                     </IconButton>
-                  </a>
+                  </Link>
                   {institution.name}
                 </TableCell>
                 <TableCell>{institution.id}</TableCell>
+                <TableCell>{institution.unitid || 'N/A'}</TableCell>
                 <TableCell>
                   {institution.ipeds_metadata?.website_address || 'N/A'}
                 </TableCell>

@@ -3,8 +3,6 @@
 import { Button, TextField, Box, Typography, Stack } from '@mui/material';
 import {useEffect, useState} from 'react';
 import {useSearchParams} from "next/navigation";
-
-import NavBar from '@/app/components/NavBar';
 import { Institution } from '@/app';
 import { Item } from '@/app/components/Item';
 
@@ -119,7 +117,6 @@ const validateForm = (institution: Institution | undefined) => {
 
   return (
     <>
-      <NavBar></NavBar>
       <Box>
         <Stack>
           <Item>

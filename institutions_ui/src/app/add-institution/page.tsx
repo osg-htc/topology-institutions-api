@@ -1,5 +1,5 @@
 'use client';
-import NavBar from '@/app/components/NavBar';
+
 import { Button, TextField, Typography } from '@mui/material';
 import { useState } from 'react';
 import { Stack, Box } from '@mui/material';
@@ -155,7 +155,6 @@ export default function AddInstitution() {
 
   return (
     <>
-      <NavBar />
       <Box>
         <Stack>
           <Item>

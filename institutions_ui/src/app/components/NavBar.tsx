@@ -68,7 +68,7 @@ export default function NavBar() {
     <Box>
       <AppBar position='static' sx={{bgcolor: 'black'}}>
         <Toolbar sx={{display: 'flex', justifyContent: 'space-between'}}>
-          <Link href={"/ui"}>
+          <Link href={"/"}>
             <Typography variant='h6'>
               Topology Institutions API
             </Typography>
@@ -86,9 +86,9 @@ export default function NavBar() {
               />
             </Search>
           </Box>
-          <a href='/ui/add-institution'>
+          <Link href='/add-institution'>
             <Button color='inherit'>Add Institution</Button>
-          </a>
+          </Link>
         </Toolbar>
       </AppBar>
     </Box>
