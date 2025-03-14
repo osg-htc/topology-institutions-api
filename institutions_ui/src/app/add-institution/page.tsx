@@ -1,20 +1,9 @@
 'use client';
 import NavBar from '@/app/components/NavBar';
-import { Alert, Button, TextField, Typography } from '@mui/material';
+import { Button, TextField, Typography } from '@mui/material';
 import { useState } from 'react';
-import { Stack, Box, Paper } from '@mui/material';
-import { styled } from '@mui/material';
-
-const Item = styled(Paper)(({ theme }) => ({
-  backgroundColor: '#fff',
-  ...theme.typography.body2,
-  padding: theme.spacing(1),
-  textAlign: 'center',
-  color: theme.palette.text.secondary,
-  ...theme.applyStyles('dark', {
-    backgroundColor: '#1A2027',
-  }),
-}));
+import { Stack, Box } from '@mui/material';
+import { Item } from '@/app/components/Item';
 
 export default function AddInstitution() {
   const [name, setName] = useState('');
