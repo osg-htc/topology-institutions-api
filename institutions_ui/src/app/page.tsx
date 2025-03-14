@@ -14,7 +14,7 @@ import {
 import { useInstitution } from './context/InstitutionContext';
 
 export default function InstitutionList() {
-  const { data } = useInstitution();
+  const { filteredInstitutions } = useInstitution();
 
   const extractShortId = (fullId: string) => {
     const parts = fullId.split('/');
@@ -41,8 +41,8 @@ export default function InstitutionList() {
           </TableRow>
         </TableHead>
         <TableBody>
-          {data?.length > 0 ? (
-            data.map((institution) => (
+          {filteredInstitutions?.length > 0 ? (
+            filteredInstitutions.map((institution) => (
               <TableRow key={institution.id}>
                 <TableCell>
                   <a href={`/ui/update-institution?id=${extractShortId(institution.id)}`}>
