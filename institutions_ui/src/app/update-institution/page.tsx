@@ -6,6 +6,8 @@ import {useSearchParams} from "next/navigation";
 import { Institution } from '@/app';
 import { Item } from '@/app/components/Item';
 
+
+
 export default function Page() {
 
   const searchParams = useSearchParams();
@@ -25,39 +27,6 @@ export default function Page() {
 
   }, []);
 
-const validateForm = (institution: Institution | undefined) => {
-  const validationErrors: { [key: string]: string } = {};
-
-  // Check if name is empty
-  if (!institution?.name) {
-    validationErrors.name = 'Name is required';
-  }
-
-  if (institution?.unitid && !/^\d{6}$/.test(institution.unitid)) {
-    validationErrors.unitid = 'Unit ID must be 6 digits long';
-  }
-
-  // Check if ROR ID is a valid URL
-  if (
-    institution?.ror_id &&
-    !/^https:\/\/ror\.org\/.+$/.test(institution?.ror_id as string)
-  ) {
-    validationErrors.ror_id =
-      'Invalid ROR ID format (must start with https://ror.org/)';
-  }
-
-  // Check if longitude and latitude are numbers
-  if (institution?.longitude && isNaN(parseFloat(institution?.longitude as string))) {
-    validationErrors.longitude = 'Longitude must be a number';
-  }
-
-  if (institution?.latitude && isNaN(parseFloat(institution?.latitude as string))) {
-    validationErrors.latitude = 'Latitude must be a number';
-  }
-
-  return validationErrors
-};
-
   // Handle changes to the form fields
   const handleFieldChange = (
     e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>,
@@ -69,7 +38,7 @@ const validateForm = (institution: Institution | undefined) => {
       // This can't happen
       if( prev === undefined) return prev;
 
-      return { ...prev, [field]: e.target.value };
+      return { ...prev, [field]: value };
     })
 
         // Clear errors when valid input is provided
@@ -108,6 +77,10 @@ const validateForm = (institution: Institution | undefined) => {
       });
       if(response.ok){
         alert('Institution updated successfully');
+      } else{
+        const error = await response.json();
+        const errorMessage = error.detail || 'Error updating institution';
+        alert(errorMessage);
       }
     } catch (error) {
       console.error('Error updating institution:', error);
@@ -199,3 +172,37 @@ const validateForm = (institution: Institution | undefined) => {
     </>
   );
 }
+
+
+const validateForm = (institution: Institution | undefined) => {
+  const validationErrors: { [key: string]: string } = {};
+
+  // Check if name is empty
+  if (!institution?.name) {
+    validationErrors.name = 'Name is required';
+  }
+
+  if (institution?.unitid && !/^\d{6}$/.test(institution.unitid)) {
+    validationErrors.unitid = 'Unit ID must be 6 digits long';
+  }
+
+  // Check if ROR ID is a valid URL
+  if (
+    institution?.ror_id &&
+    !/^https:\/\/ror\.org\/.+$/.test(institution?.ror_id as string)
+  ) {
+    validationErrors.ror_id =
+      'Invalid ROR ID format (must start with https://ror.org/)';
+  }
+
+  // Check if longitude and latitude are numbers
+  if (institution?.longitude && isNaN(parseFloat(institution?.longitude as string))) {
+    validationErrors.longitude = 'Longitude must be a number';
+  }
+
+  if (institution?.latitude && isNaN(parseFloat(institution?.latitude as string))) {
+    validationErrors.latitude = 'Latitude must be a number';
+  }
+
+  return validationErrors
+};

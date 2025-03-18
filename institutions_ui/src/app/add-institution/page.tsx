@@ -17,45 +17,64 @@ export default function AddInstitution() {
   const [disabled, setDisabled] = useState(false);
   const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
-  const validateForm = () => {
-    const validationErrors: { [key: string]: string } = {};
-
-    // Check if name is empty
-    if (!name) {
-      validationErrors.name = 'Name is required';
+  const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setName(value);
+  
+    if (value && errors.name) { //clear error if there is a value and there is an error
+      setErrors(prev => ({...prev, name: ''})); 
     }
-
-    if (unitId && !/^\d{6}$/.test(unitId)) {
-      validationErrors.unitId = 'Unit ID must be 6 digits long';
+  }
+  
+  const handleRorIdChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setRorId(value);
+  
+    if ((!value || /^https:\/\/ror\.org\/.+$/.test(value)) && errors.rorId) { //clear error if there is not a value or the value is a valid ror id
+      setErrors(prev => ({...prev, rorId: ''}));
     }
-
-    // Check if ROR ID is a valid URL
-    if (rorId && !/^https:\/\/ror\.org\/.+$/.test(rorId)) {
-      validationErrors.rorId =
-        'Invalid ROR ID format (must start with https://ror.org/)';
+  }
+  
+  
+  const handleUnitIdChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setUnitId(value);
+  
+    if((!value || /^\d{6}$/.test(value)) && errors.unitId) {
+      setErrors(prev => ({...prev, unitId: ''}));
     }
-
-    // only validate longitude and latitude if unitId is not present
-    if (!unitId) {
-      // Check if longitude and latitude are numbers
-      if (longitude && isNaN(parseFloat(longitude))) {
-        validationErrors.longitude = 'Longitude must be a number';
-      }
-
-      if (latitude && isNaN(parseFloat(latitude))) {
-        validationErrors.latitude = 'Latitude must be a number';
-      }
+  
+    if (e.target.value.trim() !== '') {
+      setDisabled(true);
+    } else {
+      setDisabled(false);
     }
-
-    setErrors(validationErrors);
-
-    return Object.keys(validationErrors).length === 0;
   };
+  
+  const handleLongitudeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setLongitude(value);
+  
+    if((!value || !isNaN(parseFloat(value))) && errors.longitude) {
+      setErrors(prev => ({...prev, longitude: ''}));
+    }
+  }
+  
+  const handleLatitudeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setLatitude(value);
+  
+    if((!value || !isNaN(parseFloat(value))) && errors.latitude) {
+      setErrors(prev => ({...prev, latitude: ''}));
+    }
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!validateForm()) {
+    const errors = validateForm(name, unitId, rorId, longitude, latitude);
+    if (errors && Object.keys(errors).length > 0) {
+      setErrors(errors);
       return;
     }
 
@@ -100,58 +119,6 @@ export default function AddInstitution() {
       console.error('Failed to add institution:', error);
     }
   };
-
-  const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setName(value);
-
-    if (value && errors.name) { //clear error if there is a value and there is an error
-      setErrors(prev => ({...prev, name: ''})); 
-    }
-  }
-
-  const handleRorIdChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setRorId(value);
-
-    if ((!value || /^https:\/\/ror\.org\/.+$/.test(value)) && errors.rorId) { //clear error if there is not a value or the value is a valid ror id
-      setErrors(prev => ({...prev, rorId: ''}));
-    }
-  }
-
-
-  const handleUnitIdChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setUnitId(value);
-
-    if((!value || /^\d{6}$/.test(value)) && errors.unitId) {
-      setErrors(prev => ({...prev, unitId: ''}));
-    }
-
-    if (e.target.value.trim() !== '') {
-      setDisabled(true);
-    } else {
-      setDisabled(false);
-    }
-  };
-
-  const handleLongitudeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setLongitude(value);
-
-    if((!value || !isNaN(parseFloat(value))) && errors.longitude) {
-      setErrors(prev => ({...prev, longitude: ''}));
-    }
-  }
-
-  const handleLatitudeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setLatitude(value);
-
-    if((!value || !isNaN(parseFloat(value))) && errors.latitude) {
-      setErrors(prev => ({...prev, latitude: ''}));
-    }
-  }
 
   return (
     <>
@@ -239,3 +206,35 @@ export default function AddInstitution() {
 }
 
 
+const validateForm = (name: string, unitId: string, rorId: string, longitude: string, latitude: string ) => {
+  const validationErrors: { [key: string]: string } = {};
+
+  // Check if name is empty
+  if (!name) {
+    validationErrors.name = 'Name is required';
+  }
+
+  if (unitId && !/^\d{6}$/.test(unitId)) {
+    validationErrors.unitId = 'Unit ID must be 6 digits long';
+  }
+
+  // Check if ROR ID is a valid URL
+  if (rorId && !/^https:\/\/ror\.org\/.+$/.test(rorId)) {
+    validationErrors.rorId =
+      'Invalid ROR ID format (must start with https://ror.org/)';
+  }
+
+  // only validate longitude and latitude if unitId is not present
+  if (!unitId) {
+    // Check if longitude and latitude are numbers
+    if (longitude && isNaN(parseFloat(longitude))) {
+      validationErrors.longitude = 'Longitude must be a number';
+    }
+
+    if (latitude && isNaN(parseFloat(latitude))) {
+      validationErrors.latitude = 'Latitude must be a number';
+    }
+  }
+
+  return validationErrors;
+};
