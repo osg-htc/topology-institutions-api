@@ -3,22 +3,24 @@
 import { Button, TextField, Box, Typography, Stack } from '@mui/material';
 import {useEffect, useState} from 'react';
 import {useSearchParams} from "next/navigation";
-
-import NavBar from '@/app/components/NavBar';
 import { Institution } from '@/app';
 import { Item } from '@/app/components/Item';
+
+
 
 export default function Page() {
 
   const searchParams = useSearchParams();
-  const id = searchParams.get('id'); // receiving the id from the URL
+  const id = searchParams?.get('id'); // receiving the id from the URL
 
   const [institution, setInstitution] = useState<Institution>();
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
 
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+
   useEffect(() => {
     (async () => {
-      const response = await fetch(`/api/institutions/${id}`)
+      const response = await fetch(`${apiUrl}/institutions/${id}`)
       const data = await response.json();
       setInstitution(data);
     })()
@@ -30,13 +32,28 @@ export default function Page() {
     e: React.ChangeEvent<HTMLTextAreaElement | HTMLInputElement>,
     field: keyof Institution
   ) => {
+    const value = e.target.value;
     setInstitution((prev: Institution | undefined) => {
 
       // This can't happen
       if( prev === undefined) return prev;
 
-      return { ...prev, [field]: e.target.value };
+      return { ...prev, [field]: value };
     })
+
+        // Clear errors when valid input is provided
+        if (field === 'name' && value && errors.name) {
+          setErrors(prev => ({...prev, name: ''}));
+        } else if (field === 'ror_id' && (!value || /^https:\/\/ror\.org\/.+$/.test(value)) && errors.ror_id) {
+          setErrors(prev => ({...prev, ror_id: ''}));
+        } else if (field === 'unitid' && (!value || /^\d{6}$/.test(value)) && errors.unitid) {
+          setErrors(prev => ({...prev, unitid: ''}));
+        } else if (field === 'longitude' && (!value || !isNaN(parseFloat(value))) && errors.longitude) {
+          setErrors(prev => ({...prev, longitude: ''}));
+        } else if (field === 'latitude' && (!value || !isNaN(parseFloat(value))) && errors.latitude) {
+          setErrors(prev => ({...prev, latitude: ''}));
+        }
+
   };
 
   // Save the changes
@@ -51,14 +68,20 @@ export default function Page() {
     }
 
     try {
-      await fetch(`/api/institutions/${id}`, {
+      const response = await fetch(`${apiUrl}/institutions/${id}`, {
         method: 'PUT',
         body: JSON.stringify(institution),
         headers: {
           'Content-Type': 'application/json',
         },
       });
-      alert('Institution updated successfully');
+      if(response.ok){
+        alert('Institution updated successfully');
+      } else{
+        const error = await response.json();
+        const errorMessage = error.detail || 'Error updating institution';
+        alert(errorMessage);
+      }
     } catch (error) {
       console.error('Error updating institution:', error);
       alert('Error updating institution');
@@ -67,7 +90,6 @@ export default function Page() {
 
   return (
     <>
-      <NavBar></NavBar>
       <Box>
         <Stack>
           <Item>
@@ -139,7 +161,7 @@ export default function Page() {
               </Item>
 
               <Item>
-                <Button variant='contained' color='primary' onClick={handleSave}>
+                <Button variant='contained' sx={{bgcolor:'black'}} onClick={handleSave}>
                   Save
                 </Button>
               </Item>
@@ -150,6 +172,7 @@ export default function Page() {
     </>
   );
 }
+
 
 const validateForm = (institution: Institution | undefined) => {
   const validationErrors: { [key: string]: string } = {};
