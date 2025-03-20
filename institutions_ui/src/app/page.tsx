@@ -83,9 +83,11 @@ export default function InstitutionList() {
                 </TableCell>
                 <TableCell>{institution.id}</TableCell>
                 <TableCell>{institution.unitid || 'N/A'}</TableCell>
-                <TableCell>
-                  {institution.ipeds_metadata?.website_address || 'N/A'}
-                </TableCell>
+                  <TableCell>
+                    {institution.ipeds_metadata?.website_address ? (<a href={institution.ipeds_metadata?.website_address} target="_blank" style={{ textDecoration: 'underline', color: pink[600] }}>{deleteTrailingSlash(institution.ipeds_metadata?.website_address) || 'N/A'}</a>)
+                    : "N/A"}
+                    
+                  </TableCell>
                 <TableCell>
                   {institution.ipeds_metadata
                     ?.historically_black_college_or_university
@@ -122,4 +124,8 @@ export default function InstitutionList() {
       </Table>
     </TableContainer>
   );
+}
+
+function deleteTrailingSlash(url: string){
+  return url.endsWith('/')? url.slice(0, -1) : url;
 }
