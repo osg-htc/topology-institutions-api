@@ -73,11 +73,13 @@ export default function InstitutionList() {
               <TableRow key={institution.id}>
                 <TableCell>
                   <Link href={`/update-institution?id=${extractShortId(institution.id)}`}>
+                  <Tooltip title="click to update institution">
                     <IconButton
                       aria-label='edit'
                     >
                       <EditIcon />
                     </IconButton>
+                    </Tooltip>
                   </Link>
                   {institution.name}
                 </TableCell>
