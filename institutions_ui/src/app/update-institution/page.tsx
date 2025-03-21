@@ -24,6 +24,10 @@ export default function Page() {
       const response = await fetch(`${apiUrl}/institutions/${id}`)
       const data = await response.json();
       setInstitution(data);
+
+      const userInfoResponse = await fetch(`${apiUrl}/user`);
+      const userInfo = await userInfoResponse.json();
+      console.log(userInfo);
     })()
 
   }, []);

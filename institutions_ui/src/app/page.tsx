@@ -16,7 +16,6 @@ import {
 import { pink } from '@mui/material/colors';
 import { useInstitution } from './context/InstitutionContext';
 import { useState } from 'react';
-import Link from 'next/link';
 
 export default function InstitutionList() {
   const { filteredInstitutions } = useInstitution();
@@ -72,7 +71,7 @@ export default function InstitutionList() {
             displayData.map((institution) => (
               <TableRow key={institution.id}>
                 <TableCell>
-                  <Link href={`/update-institution?id=${extractShortId(institution.id)}`}>
+                  <a href={`/ui/update-institution?id=${extractShortId(institution.id)}`}>
                   <Tooltip title="click to update institution">
                     <IconButton
                       aria-label='edit'
@@ -80,7 +79,7 @@ export default function InstitutionList() {
                       <EditIcon />
                     </IconButton>
                     </Tooltip>
-                  </Link>
+                  </a>
                   {institution.name}
                 </TableCell>
                 <TableCell>{institution.id}</TableCell>
