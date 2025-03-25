@@ -81,8 +81,20 @@ export default function Page() {
         router.push('/')
       } else{
         const error = await response.json();
-        const errorMessage = error.detail || 'Error updating institution';
+        let errorMessage = 'Error updating institution';
+        
+        // Handle array error responses (like 422 validation errors)
+        if (error.detail && Array.isArray(error.detail)) {
+          errorMessage = error.detail
+            .map((err: any) => err.msg || JSON.stringify(err))
+            .join('\n');
+        } else if (error.detail && typeof error.detail === 'string') {
+          // Handle string error messages
+          errorMessage = error.detail;
+        }
+        
         alert(errorMessage);
+        
       }
     } catch (error) {
       console.error('Error updating institution:', error);
