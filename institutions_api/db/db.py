@@ -244,7 +244,9 @@ def update_institution(short_id: str, institution: InstitutionValidatorModel, au
         to_update.latitude = institution.latitude
         to_update.longitude = institution.longitude
         _update_institution_ror_id(session, to_update, institution.ror_id)
-        _update_institution_unit_id(session, to_update, institution.unitid)
+
+        if institution.unitid is not None:
+            _update_institution_unit_id(session, to_update, institution.unitid)
 
         session.commit()
 
