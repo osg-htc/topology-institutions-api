@@ -135,10 +135,10 @@ export default function AddInstitution() {
 
   return (
     <>
-      <Box>
+      <Box sx={{display: 'flex', justifyContent: 'center', alignItems:'center', height: '90%', position: 'fixed', width: '100%'}}>
         <Stack>
           <Item>
-            <Typography variant='h4' gutterBottom>
+            <Typography variant='h4' gutterBottom sx={{color: 'black'}}>
               Add a new institution
             </Typography>
           </Item>
@@ -207,7 +207,12 @@ export default function AddInstitution() {
             </Item>
             <Item>
                 <Button variant='contained' sx={{bgcolor:'black'}} type='submit'>
-                  Submit
+                  Create
+                </Button>
+            </Item>
+            <Item>
+                <Button variant='contained' sx={{bgcolor:'black'}} type='submit'>
+                  Create and add another
                 </Button>
             </Item>
           </form>

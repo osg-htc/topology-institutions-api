@@ -104,10 +104,10 @@ export default function Page() {
 
   return (
     <>
-      <Box>
+      <Box sx={{display: 'flex', justifyContent: 'center', alignItems:'center', height: '90%', position: 'fixed', width: '100%'}}>
         <Stack>
           <Item>
-            <Typography variant='h4' gutterBottom>
+            <Typography variant='h4' gutterBottom sx={{color: 'black'}}>
               Update Institution
             </Typography>
           </Item>
