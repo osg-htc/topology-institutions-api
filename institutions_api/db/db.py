@@ -106,6 +106,9 @@ def add_institution(institution: InstitutionValidatorModel, author: OIDCUserInfo
             session.rollback()
             return update_institution(deactivated_id, institution, author)
 
+        if institution.ror_id:
+            _validate_ror_id_uniqueness(session, institution.ror_id, None)
+
         topology_id = _get_unused_osg_id(session)
         inst = Institution(institution.name, topology_id, author.id)
         session.add(inst)
@@ -124,6 +127,10 @@ def _update_institution_ror_id(session: Session, institution: Institution, ror_i
     based on the 'ror_id' value passed in the API model
     """
     ror_id_type = _ror_id_type(session)
+
+    if ror_id:
+        _validate_ror_id_uniqueness(session, ror_id, institution)
+
     if not ror_id:
         # delete any existing ror ids if null in the
         session.execute(delete(InstitutionIdentifier)
@@ -260,3 +267,19 @@ def invalidate_institution(short_id: str, author: OIDCUserInfo):
         to_invalidate.valid = False
         to_invalidate.updated_by = author.id
         session.commit()
+
+def _validate_ror_id_uniqueness(session: Session, ror_id: str, institution: Optional[Institution]) -> None:
+    """ Check if a ROR ID is unique across all institutions """
+
+    ror_id_type = _ror_id_type(session)
+    query = select(InstitutionIdentifier).where(
+        InstitutionIdentifier.identifier == ror_id,
+        InstitutionIdentifier.identifier_type_id == ror_id_type.id)
+
+    # Exclude the current institution from the query. Otherwise, it would always return a match
+    if institution is not None:
+        query = query.where(InstitutionIdentifier.institution_id != institution.id)
+
+    existing = session.scalar(query)
+    if existing:
+        raise HTTPException(400, f"ROR ID {ror_id} already exists for another institution")
