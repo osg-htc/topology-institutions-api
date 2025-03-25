@@ -15,12 +15,27 @@ import {
 } from '@mui/material';
 import { pink } from '@mui/material/colors';
 import { useInstitution } from './context/InstitutionContext';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 
 export default function InstitutionList() {
-  const { filteredInstitutions } = useInstitution();
+  const { filteredInstitutions, refreshInstitutions } = useInstitution();
   const [showOnlyWithUnitIds, setShowOnlyWithUnitIds] = useState<boolean>(false);
+
+  useEffect( () => {
+    refreshInstitutions();
+
+    const handleVisibilityChange = () => {
+      if(document.visibilityState === 'visible'){
+        refreshInstitutions();
+      }
+    }
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    }
+  }, [])
 
   const extractShortId = (fullId: string) => {
     const parts = fullId.split('/');
