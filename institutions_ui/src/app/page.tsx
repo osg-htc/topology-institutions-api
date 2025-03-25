@@ -50,6 +50,7 @@ export default function InstitutionList() {
   const displayData = showOnlyWithUnitIds ? filteredInstitutions.filter((institution) => institution.unitid !== null) : filteredInstitutions;
 
   return (
+    <Box>
     <TableContainer>
       <Table>
         <TableHead>
@@ -140,6 +141,7 @@ export default function InstitutionList() {
         </TableBody>
       </Table>
     </TableContainer>
+    </Box>
   );
 }
 
