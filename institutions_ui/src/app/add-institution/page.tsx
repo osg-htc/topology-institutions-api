@@ -113,7 +113,9 @@ export default function AddInstitution() {
         setLatitude('');
         setDisabled(false);
       } else {
-        alert('Failed to add institution. Please try again.');
+        const error = await response.json();
+        const errorMessage = error.detail || 'Error updating institution';
+        alert(errorMessage);
       }
     } catch (error) {
       console.error('Failed to add institution:', error);
