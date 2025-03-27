@@ -11,7 +11,8 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  Checkbox
+  Checkbox,
+  CircularProgress
 } from '@mui/material';
 import { pink } from '@mui/material/colors';
 import { useInstitution } from './context/InstitutionContext';
@@ -21,13 +22,22 @@ import Link from 'next/link';
 export default function InstitutionList() {
   const { filteredInstitutions, refreshInstitutions } = useInstitution();
   const [showOnlyWithUnitIds, setShowOnlyWithUnitIds] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(true);
 
   useEffect( () => {
-    refreshInstitutions();
+    setLoading(true);
+    refreshInstitutions()
+      .finally(() => {
+       setLoading(false);
+     })
 
     const handleVisibilityChange = () => {
       if(document.visibilityState === 'visible'){
-        refreshInstitutions();
+        setLoading(true);
+        refreshInstitutions()
+          .finally(() => {
+            setLoading(false);
+          });
       }
     }
 
@@ -35,6 +45,7 @@ export default function InstitutionList() {
     return () => {
       document.removeEventListener('visibilitychange', handleVisibilityChange);
     }
+
   }, [])
 
   const extractShortId = (fullId: string) => {
@@ -84,7 +95,13 @@ export default function InstitutionList() {
           </TableRow>
         </TableHead>
         <TableBody>
-          {displayData?.length > 0 ? (
+          {loading ? (
+            <TableRow>
+              <TableCell colSpan={12} align="center" sx={{ height: 300 }}>
+                <CircularProgress sx={{color: pink[600]}}/>
+              </TableCell>
+            </TableRow>
+          ) : displayData?.length > 0 ? (
             displayData.map((institution) => (
               <TableRow key={institution.id}>
                 <TableCell>
