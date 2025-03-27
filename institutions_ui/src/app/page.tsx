@@ -50,13 +50,13 @@ export default function InstitutionList() {
   const displayData = showOnlyWithUnitIds ? filteredInstitutions.filter((institution) => institution.unitid !== null) : filteredInstitutions;
 
   return (
-    <Box>
-    <TableContainer>
-      <Table>
+    <Box sx={{height: 'calc(100vh - 64px)', width: '100%'}}>
+    <TableContainer sx={{maxHeight: 'calc(100vh - 64px)', overflow: 'auto'}}>
+      <Table stickyHeader aria-label="sticky table">
         <TableHead>
           <TableRow>
             <TableCell>Name</TableCell>
-            <TableCell>ID</TableCell>
+            <TableCell>ROR ID</TableCell>
             <TableCell>
               <Box sx={{ display: 'flex', alignItems: 'center', whiteSpace: 'nowrap' }}>
               <span>Unit ID</span>
@@ -91,6 +91,7 @@ export default function InstitutionList() {
                   <Link href={`/update-institution?id=${extractShortId(institution.id)}`}>
                   <Tooltip title="click to update institution">
                     <IconButton
+                      sx={{color: 'black', '&:hover': {color: pink[600]}, marginLeft: -1.5}}
                       aria-label='edit'
                     >
                       <EditIcon />
@@ -99,7 +100,7 @@ export default function InstitutionList() {
                   </Link>
                   {institution.name}
                 </TableCell>
-                <TableCell>{institution.id}</TableCell>
+                <TableCell>{institution.ror_id || 'N/A'}</TableCell>
                 <TableCell>{institution.unitid || 'N/A'}</TableCell>
                   <TableCell>
                     {institution.ipeds_metadata?.website_address ? (<a href={institution.ipeds_metadata?.website_address} target="_blank" style={{ textDecoration: 'underline', color: pink[600] }}>{deleteTrailingSlash(institution.ipeds_metadata?.website_address) || 'N/A'}</a>)
