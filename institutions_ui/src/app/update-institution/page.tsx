@@ -104,7 +104,7 @@ export default function Page() {
 
   return (
     <>
-      <Box sx={{display: 'flex', justifyContent: 'center', alignItems:'center', height: '90%', position: 'fixed', width: '100%'}}>
+      <Box sx={{display: 'flex', justifyContent: 'center', alignItems:'center', height: '85%', position: 'fixed', width: '100%'}}>
         <Stack>
           <Item>
             <Typography variant='h4' gutterBottom sx={{color: 'black'}}>
@@ -175,7 +175,12 @@ export default function Page() {
               </Item>
 
               <Item>
-                <Button variant='contained' sx={{bgcolor:'black'}} onClick={handleSave}>
+                <Button variant='contained' sx={{
+                bgcolor: 'black',
+                '&:hover': {
+                  backgroundColor: '#555555',
+                }
+              }} onClick={handleSave}>
                   Save
                 </Button>
               </Item>

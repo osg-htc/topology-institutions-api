@@ -4,6 +4,7 @@ import { Button, TextField, Typography } from '@mui/material';
 import { useState } from 'react';
 import { Stack, Box } from '@mui/material';
 import { Item } from '@/app/components/Item';
+import { useRouter } from 'next/navigation'
 
 export default function AddInstitution() {
   const [name, setName] = useState('');
@@ -16,6 +17,7 @@ export default function AddInstitution() {
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [disabled, setDisabled] = useState(false);
   const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+  const router = useRouter();
 
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -69,7 +71,7 @@ export default function AddInstitution() {
     }
   }
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent, shouldRedirect: boolean = false)=> {
     e.preventDefault();
 
     const errors = validateForm(name, unitId, rorId, longitude, latitude);
@@ -112,6 +114,11 @@ export default function AddInstitution() {
         setLongitude('');
         setLatitude('');
         setDisabled(false);
+
+        if(shouldRedirect) {
+          router.push('/')
+        }
+        
       } else {
         const error = await response.json();
         let errorMessage = 'Error updating institution';
@@ -135,14 +142,14 @@ export default function AddInstitution() {
 
   return (
     <>
-      <Box sx={{display: 'flex', justifyContent: 'center', alignItems:'center', height: '90%', position: 'fixed', width: '100%'}}>
+      <Box sx={{display: 'flex', justifyContent: 'center', alignItems:'center', height: '85%', position: 'fixed', width: '100%'}}>
         <Stack>
           <Item>
             <Typography variant='h4' gutterBottom sx={{color: 'black'}}>
               Add a new institution
             </Typography>
           </Item>
-          <form onSubmit={handleSubmit}>
+          <form onSubmit={ (e)=> handleSubmit(e, false)}>
             <Item>
               <TextField
                 id='name'
@@ -206,12 +213,22 @@ export default function AddInstitution() {
               />
             </Item>
             <Item>
-                <Button variant='contained' sx={{bgcolor:'black'}} type='submit'>
+                <Button variant='contained' sx={{
+                bgcolor: 'black',
+                '&:hover': {
+                  backgroundColor: '#555555',
+                }
+              }} onClick={(e) => handleSubmit(e, true)} type='button'>
                   Create
                 </Button>
             </Item>
             <Item>
-                <Button variant='contained' sx={{bgcolor:'black'}} type='submit'>
+                <Button variant='contained' sx={{
+                bgcolor: 'black',
+                '&:hover': {
+                  backgroundColor: '#555555',
+                }
+              }} type='submit'>
                   Create and add another
                 </Button>
             </Item>
