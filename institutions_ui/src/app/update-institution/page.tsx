@@ -5,7 +5,7 @@ import {useEffect, useState} from 'react';
 import {useSearchParams} from "next/navigation";
 import { Institution } from '@/app';
 import { Item } from '@/app/components/Item';
-
+import { useRouter } from 'next/navigation';
 
 
 export default function Page() {
@@ -17,12 +17,17 @@ export default function Page() {
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
 
   const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+  const router = useRouter();
 
   useEffect(() => {
     (async () => {
       const response = await fetch(`${apiUrl}/institutions/${id}`)
       const data = await response.json();
       setInstitution(data);
+
+      const userInfoResponse = await fetch(`${apiUrl}/user`);
+      const userInfo = await userInfoResponse.json();
+      console.log(userInfo);
     })()
 
   }, []);
@@ -77,6 +82,7 @@ export default function Page() {
       });
       if(response.ok){
         alert('Institution updated successfully');
+        router.push('/')
       } else{
         const error = await response.json();
         const errorMessage = error.detail || 'Error updating institution';

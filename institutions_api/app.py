@@ -21,6 +21,16 @@ origins = [
 app.add_middleware(CORSMiddleware,
     allow_origins=origins, allow_credentials=False, allow_methods=["*"], allow_headers=["*"])
 
+@app.get('/user')
+def get_user_info(request: Request):
+    user_info = OIDCUserInfo(request)
+    return{
+        "idp": user_info.idp,
+        "id": user_info.id,
+        "name": user_info.name,
+        "email": user_info.email
+    }
+
 @app.get('/institution_ids')
 def get_valid_institutions():
     return db.get_valid_institutions()
