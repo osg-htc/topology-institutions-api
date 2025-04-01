@@ -168,10 +168,11 @@ def _update_institution_unit_id(session: Session, institution: Institution, unit
             raise HTTPException(400, f"IPEDS data for unit ID {unit_id} not found")
 
         # Update the latitude and longitude for the institution
-        if "LATITUDE" in ipeds_data_row and "LONGITUD" in ipeds_data_row:
-            institution.latitude = float(ipeds_data_row.get('LATITUDE'))
-            institution.longitude = float(ipeds_data_row.get('LONGITUD'))
-            session.commit()
+        if institution.latitude is None or institution.longitude is None:
+            if "LATITUDE" in ipeds_data_row and "LONGITUD" in ipeds_data_row:
+                institution.latitude = float(ipeds_data_row.get('LATITUDE'))
+                institution.longitude = float(ipeds_data_row.get('LONGITUD'))
+                session.commit()
 
         # Check if the institution already has an unitid
         existing_unitid = [i for i in institution.identifiers if i.identifier_type_id == unit_id_type.id]
