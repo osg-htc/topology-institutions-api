@@ -5,6 +5,7 @@ import { useState } from 'react';
 import { Stack, Box } from '@mui/material';
 import { Item } from '@/app/components/Item';
 import { useRouter } from 'next/navigation'
+import { errorHandler } from '../update-institution/page';
 
 export default function AddInstitution() {
   const [name, setName] = useState('');
@@ -120,20 +121,13 @@ export default function AddInstitution() {
         }
         
       } else {
-        const error = await response.json();
-        let errorMessage = 'Error updating institution';
-        
-        // Handle array error responses (like 422 validation errors)
-        if (error.detail && Array.isArray(error.detail)) {
-          errorMessage = error.detail
-            .map((err: any) => err.msg || JSON.stringify(err))
-            .join('\n');
-        } else if (error.detail && typeof error.detail === 'string') {
-          // Handle string error messages
-          errorMessage = error.detail;
+        try{
+          const error = await response.json();
+          const errorMessage = 'Error adding an institution'
+          errorHandler(error, errorMessage);
+        } catch{
+          alert('Response is not a JSON object');
         }
-        
-        alert(errorMessage);
       }
     } catch (error) {
       console.error('Failed to add institution:', error);
@@ -149,7 +143,7 @@ export default function AddInstitution() {
               Add a new institution
             </Typography>
           </Item>
-          <form onSubmit={ (e)=> handleSubmit(e, false)}>
+          <form>
             <Item>
               <TextField
                 id='name'
@@ -228,7 +222,7 @@ export default function AddInstitution() {
                 '&:hover': {
                   backgroundColor: '#555555',
                 }
-              }} type='submit'>
+              }} onClick={(e) => handleSubmit(e, false)} type='button'>
                   Create and add another
                 </Button>
             </Item>
