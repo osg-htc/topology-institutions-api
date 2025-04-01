@@ -5,7 +5,7 @@ import {useEffect, useState} from 'react';
 import {useSearchParams} from "next/navigation";
 import { Institution } from '@/app';
 import { Item } from '@/app/components/Item';
-
+import { useRouter } from 'next/navigation';
 
 
 export default function Page() {
@@ -17,6 +17,7 @@ export default function Page() {
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
 
   const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+  const router = useRouter();
 
   useEffect(() => {
     (async () => {
@@ -77,10 +78,15 @@ export default function Page() {
       });
       if(response.ok){
         alert('Institution updated successfully');
+        router.push('/')
       } else{
-        const error = await response.json();
-        const errorMessage = error.detail || 'Error updating institution';
-        alert(errorMessage);
+        try{
+          const error = await response.json();
+          const errorMessage = 'Error updating institution';
+          errorHandler(error, errorMessage)
+        } catch {
+          alert('Response is not a JSON object');
+        }
       }
     } catch (error) {
       console.error('Error updating institution:', error);
@@ -90,10 +96,10 @@ export default function Page() {
 
   return (
     <>
-      <Box>
+      <Box sx={{display: 'flex', justifyContent: 'center', alignItems:'center', height: '85%', position: 'fixed', width: '100%'}}>
         <Stack>
           <Item>
-            <Typography variant='h4' gutterBottom>
+            <Typography variant='h4' gutterBottom sx={{color: 'black'}}>
               Update Institution
             </Typography>
           </Item>
@@ -161,7 +167,12 @@ export default function Page() {
               </Item>
 
               <Item>
-                <Button variant='contained' sx={{bgcolor:'black'}} onClick={handleSave}>
+                <Button variant='contained' sx={{
+                bgcolor: 'black',
+                '&:hover': {
+                  backgroundColor: '#555555',
+                }
+              }} onClick={handleSave}>
                   Save
                 </Button>
               </Item>
@@ -206,3 +217,19 @@ const validateForm = (institution: Institution | undefined) => {
 
   return validationErrors
 };
+
+
+export function errorHandler(error: any, errorMessage: string) {
+        
+  // Handle array error responses (like 422 validation errors)
+  if (error.detail && Array.isArray(error.detail)) {
+    errorMessage = error.detail
+      .map((err: any) => err.msg || JSON.stringify(err))
+      .join('\n');
+  } else if (error.detail && typeof error.detail === 'string') {
+    // Handle string error messages
+    errorMessage = error.detail;
+  }
+  
+  alert(errorMessage);
+}
