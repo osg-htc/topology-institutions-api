@@ -3,6 +3,7 @@ import { Box, AppBar, Toolbar, Typography, Button, styled, alpha, InputBase } fr
 import SearchIcon from '@mui/icons-material/Search';
 import { useInstitution } from '@/app/context/InstitutionContext';
 import React, { useState, useEffect } from 'react';
+import Link from 'next/link';
 
 const Search = styled('div')(({ theme }) => ({
   position: 'relative',
@@ -67,11 +68,11 @@ export default function NavBar() {
     <Box>
       <AppBar position='static' sx={{bgcolor: 'black'}}>
         <Toolbar sx={{display: 'flex', justifyContent: 'space-between'}}>
-          <a href={"/ui"}>
+          <Link href={"/"}>
             <Typography variant='h6'>
               Topology Institutions API
             </Typography>
-          </a>
+          </Link>
           <Box sx={{display: 'flex', flexGrow: 1, alignItems: 'center'}}>
             <Search>
               <SearchIconWrapper>
