@@ -7,6 +7,7 @@ interface InstitutionContextType {
     data: Institution[];
     filteredInstitutions: Institution[];
     setFilteredInstitutions: React.Dispatch<React.SetStateAction<Institution[]>>;
+    refreshInstitutions: () => Promise<void>;
 }
 
 const InstitutionContext = createContext<InstitutionContextType | undefined>(undefined)
@@ -16,20 +17,23 @@ export function InstitutionProvider( {children}: { children: ReactNode}) {
     const [filteredInstitutions, setFilteredInstitutions] = useState<Institution[]>([]);
     const apiUrl = process.env.NEXT_PUBLIC_API_URL;
 
+    const fetchInstitutions = async () => {
+        const response = await fetch(`${apiUrl}/institution_ids`);
+        const institutions = await response.json();
+        setData(institutions);
+        setFilteredInstitutions(institutions);
+    }
+
+    const refreshInstitutions = async () => {
+        await fetchInstitutions();
+    }
+
     useEffect(() => {
-
-        const fetchData = async () => {
-            const response = await fetch(`${apiUrl}/institution_ids`);
-            const institutions = await response.json();
-            setData(institutions);
-            setFilteredInstitutions(institutions);
-        }
-        fetchData();
-
+        fetchInstitutions();
     }, [])
 
     return(
-        <InstitutionContext.Provider value={{data, filteredInstitutions, setFilteredInstitutions}}>
+        <InstitutionContext.Provider value={{data, filteredInstitutions, setFilteredInstitutions, refreshInstitutions}}>
             {children}
         </InstitutionContext.Provider>
     )
