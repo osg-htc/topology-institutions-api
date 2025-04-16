@@ -56,6 +56,13 @@ route prefix to the frontend's deployment.
 
 ### Deployment
 
+The dev site tracks the main branch automatically. 
+
+https://topology-institutions.osgdev.chtc.io
+
+To deploy to production tag an image with a new semver tag and push to the upstream repository. This will trigger a image
+to build labeled with that tag. Manually update the tiger production image layer with that label after build is complete.
+
 ## API
 
 Running the following will build and deploy this image in a location that it can be pulled from Tiger.
