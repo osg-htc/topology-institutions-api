@@ -61,7 +61,7 @@ route prefix to the frontend's deployment.
 Running the following will build and deploy this image in a location that it can be pulled from Tiger.
 
 ```shell
-TAG=0.2.6
+TAG=0.2.7
 ```
 
 ```shell
@@ -81,7 +81,7 @@ docker run --env-file .env hub.opensciencegrid.org/opensciencegrid/topology-inst
 Running the following will build and deploy this image in a location that it can be pulled from Tiger.
 
 ```shell
-TAG=0.2.5
+TAG=0.2.7
 ```
 
 ```shell
