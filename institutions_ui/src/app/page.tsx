@@ -17,7 +17,6 @@ import {
 import { pink } from '@mui/material/colors';
 import { useInstitution } from './context/InstitutionContext';
 import { useState, useEffect } from 'react';
-import Link from 'next/link';
 
 export default function InstitutionList() {
   const { filteredInstitutions, refreshInstitutions } = useInstitution();
@@ -72,15 +71,15 @@ export default function InstitutionList() {
               <Box sx={{ display: 'flex', alignItems: 'center', whiteSpace: 'nowrap' }}>
               <span>Unit ID</span>
               <Tooltip title="Check to show institutions with Unit ID only">
-                  <Checkbox 
-                  size="small" 
+                  <Checkbox
+                  size="small"
                   sx={{color: pink[800],'&.Mui-checked': {color: pink[600],}, marginRight: 1}}
                   inputProps={{ 'aria-label': 'controlled' }}
                   onChange={handleUnitIdFilter}
                   checked={showOnlyWithUnitIds}
-                  /> 
+                  />
                 </Tooltip>
-                
+
               </Box>
             </TableCell>
             <TableCell>Website</TableCell>
@@ -122,7 +121,7 @@ export default function InstitutionList() {
                   <TableCell>
                     {institution.ipeds_metadata?.website_address ? (<a href={institution.ipeds_metadata?.website_address} target="_blank" style={{ textDecoration: 'underline', color: pink[600] }}>{deleteTrailingSlash(institution.ipeds_metadata?.website_address) || 'N/A'}</a>)
                     : "N/A"}
-                    
+
                   </TableCell>
                 <TableCell>
                   {institution.ipeds_metadata

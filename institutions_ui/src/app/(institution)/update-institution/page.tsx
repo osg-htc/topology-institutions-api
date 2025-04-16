@@ -25,8 +25,7 @@ export default function Page() {
       const response = await fetch(`${apiUrl}/institutions/${id}`)
       const data = await response.json();
       setInstitution(data);
-    })()
-
+    })();
   }, []);
 
   // Handle changes to the form fields
