@@ -6,7 +6,7 @@ frontend to that API. The frontend and backend are designed to be run in two sep
 containers, using Apache to reverse proxy requests to the appropriate destination. 
 Read operations to the API are unauthenticated, while write operations are authenticated 
 via OIDC. 
-
+ 
 ### Mapped Data
 
 The institutions database uses two data sources for mapping in institutional metadata
@@ -56,12 +56,19 @@ route prefix to the frontend's deployment.
 
 ### Deployment
 
+The dev site tracks the main branch automatically. 
+
+https://topology-institutions.osgdev.chtc.io
+
+To deploy to production tag an image with a new semver tag and push to the upstream repository. This will trigger a image
+to build labeled with that tag. Manually update the tiger production image layer with that label after build is complete.
+
 ## API
 
 Running the following will build and deploy this image in a location that it can be pulled from Tiger.
 
 ```shell
-TAG=0.2.6
+TAG=0.2.7
 ```
 
 ```shell
@@ -81,7 +88,7 @@ docker run --env-file .env hub.opensciencegrid.org/opensciencegrid/topology-inst
 Running the following will build and deploy this image in a location that it can be pulled from Tiger.
 
 ```shell
-TAG=0.2.5
+TAG=0.2.7
 ```
 
 ```shell

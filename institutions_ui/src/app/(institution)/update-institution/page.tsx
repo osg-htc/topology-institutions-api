@@ -6,6 +6,7 @@ import {useSearchParams} from "next/navigation";
 import { Institution } from '@/app';
 import { Item } from '@/app/components/Item';
 import { useRouter } from 'next/navigation';
+import errorHandler from "@/util/errorHandler";
 
 
 export default function Page() {
@@ -216,19 +217,3 @@ const validateForm = (institution: Institution | undefined) => {
 
   return validationErrors
 };
-
-
-export function errorHandler(error: any, errorMessage: string) {
-        
-  // Handle array error responses (like 422 validation errors)
-  if (error.detail && Array.isArray(error.detail)) {
-    errorMessage = error.detail
-      .map((err: any) => err.msg || JSON.stringify(err))
-      .join('\n');
-  } else if (error.detail && typeof error.detail === 'string') {
-    // Handle string error messages
-    errorMessage = error.detail;
-  }
-  
-  alert(errorMessage);
-}
