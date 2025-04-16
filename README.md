@@ -6,7 +6,7 @@ frontend to that API. The frontend and backend are designed to be run in two sep
 containers, using Apache to reverse proxy requests to the appropriate destination. 
 Read operations to the API are unauthenticated, while write operations are authenticated 
 via OIDC. 
-
+ 
 ### Mapped Data
 
 The institutions database uses two data sources for mapping in institutional metadata
