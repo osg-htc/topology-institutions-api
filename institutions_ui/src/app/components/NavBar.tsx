@@ -66,7 +66,7 @@ export default function NavBar() {
 
   return (
     <Box>
-      <AppBar position='static' sx={{bgcolor: 'black'}}>
+      <AppBar position='fixed' sx={{bgcolor: 'black'}}>
         <Toolbar sx={{display: 'flex', justifyContent: 'space-between'}}>
           <Link href={"/"}>
             <Typography variant='h6'>
@@ -98,6 +98,7 @@ export default function NavBar() {
           </a>
         </Toolbar>
       </AppBar>
+      <Toolbar />
     </Box>
   );
 }

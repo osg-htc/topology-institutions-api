@@ -11,15 +11,41 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  Checkbox
+  Checkbox,
+  CircularProgress
 } from '@mui/material';
 import { pink } from '@mui/material/colors';
 import { useInstitution } from './context/InstitutionContext';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 export default function InstitutionList() {
-  const { filteredInstitutions } = useInstitution();
+  const { filteredInstitutions, refreshInstitutions } = useInstitution();
   const [showOnlyWithUnitIds, setShowOnlyWithUnitIds] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(true);
+
+  useEffect( () => {
+    setLoading(true);
+    refreshInstitutions()
+      .finally(() => {
+       setLoading(false);
+     })
+
+    const handleVisibilityChange = () => {
+      if(document.visibilityState === 'visible'){
+        setLoading(true);
+        refreshInstitutions()
+          .finally(() => {
+            setLoading(false);
+          });
+      }
+    }
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    }
+
+  }, [])
 
   const extractShortId = (fullId: string) => {
     const parts = fullId.split('/');
@@ -34,25 +60,26 @@ export default function InstitutionList() {
   const displayData = showOnlyWithUnitIds ? filteredInstitutions.filter((institution) => institution.unitid !== null) : filteredInstitutions;
 
   return (
-    <TableContainer>
-      <Table>
+    <Box sx={{height: 'calc(100vh - 64px)', width: '100%'}}>
+    <TableContainer sx={{maxHeight: 'calc(100vh - 64px)', overflow: 'auto'}}>
+      <Table stickyHeader aria-label="sticky table">
         <TableHead>
           <TableRow>
             <TableCell>Name</TableCell>
-            <TableCell>ID</TableCell>
+            <TableCell>ROR ID</TableCell>
             <TableCell>
               <Box sx={{ display: 'flex', alignItems: 'center', whiteSpace: 'nowrap' }}>
               <span>Unit ID</span>
               <Tooltip title="Check to show institutions with Unit ID only">
-                  <Checkbox 
-                  size="small" 
+                  <Checkbox
+                  size="small"
                   sx={{color: pink[800],'&.Mui-checked': {color: pink[600],}, marginRight: 1}}
                   inputProps={{ 'aria-label': 'controlled' }}
                   onChange={handleUnitIdFilter}
                   checked={showOnlyWithUnitIds}
-                  /> 
+                  />
                 </Tooltip>
-                
+
               </Box>
             </TableCell>
             <TableCell>Website</TableCell>
@@ -67,27 +94,34 @@ export default function InstitutionList() {
           </TableRow>
         </TableHead>
         <TableBody>
-          {displayData?.length > 0 ? (
+          {loading ? (
+            <TableRow>
+              <TableCell colSpan={12} align="center" sx={{ height: 300 }}>
+                <CircularProgress sx={{color: pink[600]}}/>
+              </TableCell>
+            </TableRow>
+          ) : displayData?.length > 0 ? (
             displayData.map((institution) => (
               <TableRow key={institution.id}>
                 <TableCell>
-                  <a href={`/ui/update-institution?id=${extractShortId(institution.id)}`}>
+                  <Link href={`/update-institution?id=${extractShortId(institution.id)}`}>
                   <Tooltip title="click to update institution">
                     <IconButton
+                      sx={{color: 'black', '&:hover': {color: pink[600]}, marginLeft: -1.5}}
                       aria-label='edit'
                     >
                       <EditIcon />
                     </IconButton>
                     </Tooltip>
-                  </a>
+                  </Link>
                   {institution.name}
                 </TableCell>
-                <TableCell>{institution.id}</TableCell>
+                <TableCell>{institution.ror_id || 'N/A'}</TableCell>
                 <TableCell>{institution.unitid || 'N/A'}</TableCell>
                   <TableCell>
                     {institution.ipeds_metadata?.website_address ? (<a href={institution.ipeds_metadata?.website_address} target="_blank" style={{ textDecoration: 'underline', color: pink[600] }}>{deleteTrailingSlash(institution.ipeds_metadata?.website_address) || 'N/A'}</a>)
                     : "N/A"}
-                    
+
                   </TableCell>
                 <TableCell>
                   {institution.ipeds_metadata
@@ -124,6 +158,7 @@ export default function InstitutionList() {
         </TableBody>
       </Table>
     </TableContainer>
+    </Box>
   );
 }
 

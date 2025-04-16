@@ -2,6 +2,7 @@
 
 from uuid import uuid4
 
+from psycopg2.sql import NULL
 from sqlalchemy import text
 import pandas as pd
 
@@ -24,6 +25,50 @@ def map_in_carnegie_data():
     )
     carnegie_2025_by_unitid = carnegie_2025_df.set_index("UNITID").to_dict(orient="index")
 
+    # with engine.connect() as conn:
+    #
+    #     # Get the institutions with ROR identifiers
+    #     institutes = conn.execute(text("""
+    #         SELECT inst.*, ii.identifier, ii.id AS identifier_id, it.name
+    #         FROM institution inst
+    #         LEFT JOIN institution_identifier ii on inst.id = ii.institution_id
+    #         LEFT JOIN public.identifier_type it on ii.identifier_type_id = it.id
+    #         WHERE it.name = 'unitid'
+    #     """)).mappings().fetchall()
+    #
+    #     for institute in institutes:
+    #
+    #         carnegie_data = carnegie_by_unitid.get(int(institute["identifier"]))
+    #
+    #         # Add the IPEDS identifier
+    #         if carnegie_data:
+    #
+    #             # Check if that institution already exists
+    #             existing_mapping = conn.execute(text(f"""
+    #                 SELECT * FROM institution_carnegie_classification_metadata WHERE institution_id = '{institute['id']}'
+    #             """)).fetchone()
+    #
+    #             if not existing_mapping:
+    #
+    #                 ipeds_metadata = {
+    #                     "id": uuid4(),
+    #                     "institution_id": institute['id'],
+    #                     "institution_identifier_id": institute['identifier_id'],
+    #                     "classification": CARNEGIE_CLASSIFICATION_MAPPING.get(str(carnegie_data["basic2021"])),
+    #                 }
+    #
+    #                 conn.execute(
+    #                     text(f"""
+    #                         INSERT INTO institution_carnegie_classification_metadata (
+    #                             id, institution_id, institution_identifier_id, classification2021
+    #                         ) VALUES (
+    #                             :id, :institution_id, :institution_identifier_id, :classification
+    #                         )
+    #                     """), ipeds_metadata
+    #                 )
+    #
+    #     conn.commit()
+
     with engine.connect() as conn:
 
         # Get the institutions with ROR identifiers
@@ -38,63 +83,21 @@ def map_in_carnegie_data():
         for institute in institutes:
 
             carnegie_data = carnegie_by_unitid.get(int(institute["identifier"]))
-
-            # Add the IPEDS identifier
-            if carnegie_data:
-
-                # Check if that institution already exists
-                existing_mapping = conn.execute(text(f"""
-                    SELECT * FROM institution_carnegie_classification_metadata WHERE institution_id = '{institute['id']}'
-                """)).fetchone()
-
-                if not existing_mapping:
-
-                    ipeds_metadata = {
-                        "id": uuid4(),
-                        "institution_id": institute['id'],
-                        "institution_identifier_id": institute['identifier_id'],
-                        "classification": CARNEGIE_CLASSIFICATION_MAPPING.get(str(carnegie_data["basic2021"])),
-                    }
-
-                    conn.execute(
-                        text(f"""
-                            INSERT INTO institution_carnegie_classification_metadata (
-                                id, institution_id, institution_identifier_id, classification2021
-                            ) VALUES (
-                                :id, :institution_id, :institution_identifier_id, :classification
-                            )
-                        """), ipeds_metadata
-                    )
-
-        conn.commit()
-
-    with engine.connect() as conn:
-
-        # Get the institutions with ROR identifiers
-        institutes = conn.execute(text("""
-            SELECT inst.*, ii.identifier, ii.id AS identifier_id, it.name
-            FROM institution inst
-            LEFT JOIN institution_identifier ii on inst.id = ii.institution_id
-            LEFT JOIN public.identifier_type it on ii.identifier_type_id = it.id
-            WHERE it.name = 'unitid'
-        """)).mappings().fetchall()
-
-        for institute in institutes:
-
-            carnegie_data = carnegie_2025_by_unitid.get(int(institute["identifier"]))
+            carnegie_2025_data = carnegie_2025_by_unitid.get(int(institute["identifier"]))
 
             # Add the IPEDS identifier
             if carnegie_data:
 
                 carnegie_metadata = {
-                    "classification": RESEARCH_ACTIVITY_DESIGNATION_2025_MAPPING.get(str(carnegie_data["2025 Research Activity Designation"])),
+                    "classification2021": CARNEGIE_CLASSIFICATION_MAPPING.get(str(carnegie_data["basic2021"]), NULL),
+                    "classification2025": RESEARCH_ACTIVITY_DESIGNATION_2025_MAPPING.get(carnegie_2025_data["2025 Research Activity Designation"]) if carnegie_2025_data else None,
                     "institution_id": institute['id'],
                 }
 
                 conn.execute(
                     text(f"""
                         UPDATE institution_carnegie_classification_metadata 
-                        SET classification2025 = :classification
+                        SET classification2025 = :classification2025, classification2021 = :classification2021
                         WHERE institution_id = :institution_id
                     """), carnegie_metadata
                 )

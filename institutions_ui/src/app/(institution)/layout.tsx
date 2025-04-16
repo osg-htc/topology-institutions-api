@@ -2,10 +2,8 @@
 
 import { useEffect } from 'react';
 
-
-
 export default function InstitutionLayout({children} : {children: React.ReactNode}) {
-    
+
     const apiUrl = process.env.NEXT_PUBLIC_API_URL;
     useEffect(() => {
         const fetchUserData = async () => {
