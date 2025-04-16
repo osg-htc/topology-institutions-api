@@ -5,7 +5,7 @@ import { useState } from 'react';
 import { Stack, Box } from '@mui/material';
 import { Item } from '@/app/components/Item';
 import { useRouter } from 'next/navigation'
-import { errorHandler } from '../update-institution/page';
+import errorHandler from '@/util/errorHandler';
 
 export default function AddInstitution() {
   const [name, setName] = useState('');

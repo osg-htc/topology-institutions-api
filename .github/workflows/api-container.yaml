@@ -5,6 +5,8 @@ on:
     branches: ["main"]
     tags:
       - 'v*.*.*' # glob for semver tags (including prereleases)
+  pull_request:
+    branches: ["main"]
 
 jobs:
   call-build-image:
