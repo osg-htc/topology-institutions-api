@@ -12,3 +12,4 @@ jobs:
     secrets: inherit
     with:
       image: 'hub.opensciencegrid.org/opensciencegrid/topology-institutions-api'
+      file: 'institutions-api.Dockerfile'
