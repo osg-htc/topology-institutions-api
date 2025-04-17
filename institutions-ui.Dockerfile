@@ -1,4 +1,4 @@
-FROM node:21.5.0 AS build-step
+FROM node:lts AS build-step
 WORKDIR /build
 
 COPY institutions_ui/package.json institutions_ui/package-lock.json ./

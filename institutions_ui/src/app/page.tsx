@@ -17,6 +17,7 @@ import {
 import { pink } from '@mui/material/colors';
 import { useInstitution } from './context/InstitutionContext';
 import { useState, useEffect } from 'react';
+import Link from 'next/link';
 
 export default function InstitutionList() {
   const { filteredInstitutions, refreshInstitutions } = useInstitution();
