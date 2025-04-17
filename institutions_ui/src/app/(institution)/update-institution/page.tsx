@@ -96,7 +96,7 @@ export default function Page() {
 
   return (
     <>
-      <Box sx={{display: 'flex', justifyContent: 'center', alignItems:'center', height: '85%', position: 'fixed', width: '100%'}}>
+      <Box sx={{display: 'flex', justifyContent: 'center', alignItems:'center', minHeight: "100vh", width: '100%'}}>
         <Stack>
           <Item>
             <Typography variant='h4' gutterBottom sx={{color: 'black'}}>
@@ -108,11 +108,11 @@ export default function Page() {
               <Item>
                 {/* Institution name */}
                 <TextField
+                    fullWidth
                     label='Institution Name'
                     margin='normal'
                     value={institution?.name || ''}
                     onChange={(e) => handleFieldChange(e, 'name')}
-                    sx={{width: '400px'}}
                     error={!!errors.name}
                     helperText={errors.name}
                 />
@@ -124,7 +124,6 @@ export default function Page() {
                     margin='normal'
                     value={institution?.ror_id || ''}
                     onChange={(e) => handleFieldChange(e, 'ror_id')}
-                    sx={{width: '400px'}}
                     error={!!errors.ror_id}
                     helperText={errors.ror_id}
                 />
@@ -132,11 +131,11 @@ export default function Page() {
               <Item>
                 {/* Unit ID */}
                 <TextField
+                    fullWidth
                     label='Unit ID'
                     margin='normal'
                     value={institution?.unitid || ''}
                     onChange={(e) => handleFieldChange(e, 'unitid')}
-                    sx={{width: '400px'}}
                     error={!!errors.unitid}
                     helperText={errors.unitid}
                 />
@@ -144,11 +143,11 @@ export default function Page() {
               <Item>
                 {/* Longitude */}
                 <TextField
+                    fullWidth
                     label='Longitude'
                     margin='normal'
                     value={institution?.longitude || ''}
                     onChange={(e) => handleFieldChange(e, 'longitude')}
-                    sx={{width: '400px'}}
                     error={!!errors.longitude}
                     helperText={errors.longitude}
                 />
@@ -156,11 +155,11 @@ export default function Page() {
               <Item>
                 {/* Latitude */}
                 <TextField
+                    fullWidth
                     label='Latitude'
                     margin='normal'
                     value={institution?.latitude || ''}
                     onChange={(e) => handleFieldChange(e, 'latitude')}
-                    sx={{width: '400px'}}
                     error={!!errors.latitude}
                     helperText={errors.latitude}
                 />

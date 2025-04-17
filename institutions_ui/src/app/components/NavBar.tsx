@@ -86,7 +86,7 @@ export default function NavBar() {
               />
             </Search>
           </Box>
-          <Link href='/ui/add-institution/'>
+          <Link href='/add-institution/'>
           <Button 
               sx={{
                 color: 'white',

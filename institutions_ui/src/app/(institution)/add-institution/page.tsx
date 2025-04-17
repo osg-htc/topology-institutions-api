@@ -136,7 +136,7 @@ export default function AddInstitution() {
 
   return (
     <>
-      <Box sx={{display: 'flex', justifyContent: 'center', alignItems:'center', height: '85%', position: 'fixed', width: '100%'}}>
+      <Box sx={{display: 'flex', justifyContent: 'center', alignItems:'center', minHeight: "100vh", width: '100%'}}>
         <Stack>
           <Item>
             <Typography variant='h4' gutterBottom sx={{color: 'black'}}>
@@ -146,6 +146,7 @@ export default function AddInstitution() {
           <form>
             <Item>
               <TextField
+                fullWidth
                 id='name'
                 label='Institution Name'
                 margin='normal'
@@ -153,11 +154,11 @@ export default function AddInstitution() {
                 onChange={handleNameChange}
                 error={!!errors.name}
                 helperText={errors.name}
-                sx={{ width: '400px' }}
               />
             </Item>
             <Item>
               <TextField
+                fullWidth
                 id='rorId'
                 label='ROR ID'
                 margin='normal'
@@ -165,11 +166,11 @@ export default function AddInstitution() {
                 onChange={handleRorIdChange}
                 error={!!errors.rorId}
                 helperText={errors.rorId}
-                sx={{ width: '400px' }}
               />
             </Item>
             <Item>
               <TextField
+                fullWidth
                 id='unitId'
                 label='Unit ID'
                 margin='normal'
@@ -177,11 +178,11 @@ export default function AddInstitution() {
                 onChange={handleUnitIdChange}
                 error={!!errors.unitId}
                 helperText={errors.unitId}
-                sx={{ width: '400px' }}
               />
             </Item>
             <Item>
               <TextField
+                fullWidth
                 id='longitude'
                 label='Longitude'
                 margin='normal'
@@ -190,11 +191,11 @@ export default function AddInstitution() {
                 error={!!errors.longitude}
                 disabled={disabled}
                 helperText={errors.longitude}
-                sx={{ width: '400px' }}
               />
             </Item>
             <Item>
               <TextField
+                fullWidth
                 id='latitude'
                 label='Latitude'
                 margin='normal'
@@ -203,7 +204,6 @@ export default function AddInstitution() {
                 error={!!errors.latitude}
                 disabled={disabled}
                 helperText={errors.latitude}
-                sx={{ width: '400px' }}
               />
             </Item>
             <Item>
