@@ -1,4 +1,4 @@
-name: Build image
+name: Build API Image
 
 on:
   push:
@@ -9,7 +9,7 @@ on:
     branches: ["main"]
 
 jobs:
-  call-build-image:
+  call-build-api-image:
     uses: osg-htc/build-push/.github/workflows/build-push.yaml@main
     secrets: inherit
     with:
