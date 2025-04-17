@@ -114,18 +114,20 @@ export default function Page() {
                     value={institution?.name || ''}
                     onChange={(e) => handleFieldChange(e, 'name')}
                     error={!!errors.name}
-                    helperText={errors.name}
+                    helperText={errors.name || "Should match name from ROR id included below"}
                 />
               </Item>
               <Item>
                 {/* ROR ID */}
                 <TextField
+                    fullWidth
                     label='ROR ID'
                     margin='normal'
                     value={institution?.ror_id || ''}
                     onChange={(e) => handleFieldChange(e, 'ror_id')}
                     error={!!errors.ror_id}
-                    helperText={errors.ror_id}
+                    helperText={errors.ror_id || <a href={"https://ror.org/search"}>Click on this text to search</a>}
+
                 />
               </Item>
               <Item>
@@ -137,7 +139,10 @@ export default function Page() {
                     value={institution?.unitid || ''}
                     onChange={(e) => handleFieldChange(e, 'unitid')}
                     error={!!errors.unitid}
-                    helperText={errors.unitid}
+                    helperText={errors.unitid ||  <span>
+                      Required if US University or College* |
+                      <a href={"https://nces.ed.gov/ipeds/datacenter/InstitutionByName.aspx"}> Click on this text to search</a>
+                    </span>}
                 />
               </Item>
               <Item>
@@ -149,7 +154,7 @@ export default function Page() {
                     value={institution?.longitude || ''}
                     onChange={(e) => handleFieldChange(e, 'longitude')}
                     error={!!errors.longitude}
-                    helperText={errors.longitude}
+                    helperText={errors.longitude || "Required | Will be filled in automatically if ROR is included"}
                 />
               </Item>
               <Item>
@@ -161,7 +166,7 @@ export default function Page() {
                     value={institution?.latitude || ''}
                     onChange={(e) => handleFieldChange(e, 'latitude')}
                     error={!!errors.latitude}
-                    helperText={errors.latitude}
+                    helperText={errors.latitude || "Required | Will be filled in automatically if ROR is included"}
                 />
               </Item>
 

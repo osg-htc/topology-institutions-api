@@ -153,7 +153,7 @@ export default function AddInstitution() {
                 value={name}
                 onChange={handleNameChange}
                 error={!!errors.name}
-                helperText={errors.name}
+                helperText={errors.name || "Should match name from ROR id included below"}
               />
             </Item>
             <Item>
@@ -165,7 +165,7 @@ export default function AddInstitution() {
                 value={rorId}
                 onChange={handleRorIdChange}
                 error={!!errors.rorId}
-                helperText={errors.rorId}
+                helperText={errors.ror_id || <a href={"https://ror.org/search"}>Click on this text to search</a>}
               />
             </Item>
             <Item>
@@ -177,7 +177,10 @@ export default function AddInstitution() {
                 value={unitId}
                 onChange={handleUnitIdChange}
                 error={!!errors.unitId}
-                helperText={errors.unitId}
+                helperText={errors.unitid ||  <span>
+                  Required if US University or College* |
+                  <a href={"https://nces.ed.gov/ipeds/datacenter/InstitutionByName.aspx"}> Click on this text to search</a>
+                </span>}
               />
             </Item>
             <Item>
@@ -190,7 +193,7 @@ export default function AddInstitution() {
                 onChange={handleLongitudeChange}
                 error={!!errors.longitude}
                 disabled={disabled}
-                helperText={errors.longitude}
+                helperText={errors.longitude || "Required | Will be filled in automatically if ROR is included"}
               />
             </Item>
             <Item>
@@ -203,7 +206,7 @@ export default function AddInstitution() {
                 onChange={handleLatitudeChange}
                 error={!!errors.latitude}
                 disabled={disabled}
-                helperText={errors.latitude}
+                helperText={errors.latitude || "Required | Will be filled in automatically if ROR is included"}
               />
             </Item>
             <Item>
