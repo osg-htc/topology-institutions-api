@@ -69,6 +69,7 @@ export default function InstitutionList() {
           <TableHead>
             <TableRow>
               <TableCell>Name</TableCell>
+              <TableCell>OSG ID</TableCell>
               <TableCell>ROR ID</TableCell>
               <TableCell>
                 <Box
@@ -133,6 +134,9 @@ export default function InstitutionList() {
                       </Tooltip>
                     </Link>
                     {institution.name}
+                  </TableCell>
+                  <TableCell>
+                    {institution.id}
                   </TableCell>
                   <TableCell>
                     {institution.ror_id ? (
