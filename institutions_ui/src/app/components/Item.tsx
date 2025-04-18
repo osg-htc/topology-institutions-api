@@ -1,11 +1,11 @@
-'use client'
+'use client';
 
-import {Box, styled} from "@mui/material";
+import { Box, styled } from '@mui/material';
 
 export const Item = styled(Box)(({ theme }) => ({
   backgroundColor: '#fff',
   ...theme.typography.body2,
   padding: theme.spacing(1),
   textAlign: 'center',
-  color: theme.palette.text.secondary
+  color: theme.palette.text.secondary,
 }));

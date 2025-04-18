@@ -2,9 +2,9 @@
 
 import { Button, TextField, Typography } from '@mui/material';
 import { useState } from 'react';
-import { Stack, Box } from '@mui/material';
+import { Stack, Box, CircularProgress } from '@mui/material';
 import { Item } from '@/app/components/Item';
-import { useRouter } from 'next/navigation'
+import { useRouter } from 'next/navigation';
 import errorHandler from '@/util/errorHandler';
 
 export default function AddInstitution() {
@@ -17,63 +17,71 @@ export default function AddInstitution() {
 
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [disabled, setDisabled] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
   const apiUrl = process.env.NEXT_PUBLIC_API_URL;
   const router = useRouter();
 
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setName(value);
-  
-    if (value && errors.name) { //clear error if there is a value and there is an error
-      setErrors(prev => ({...prev, name: ''})); 
+
+    if (value && errors.name) {
+      //clear error if there is a value and there is an error
+      setErrors((prev) => ({ ...prev, name: '' }));
     }
-  }
-  
+  };
+
   const handleRorIdChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setRorId(value);
-  
-    if ((!value || /^https:\/\/ror\.org\/.+$/.test(value)) && errors.rorId) { //clear error if there is not a value or the value is a valid ror id
-      setErrors(prev => ({...prev, rorId: ''}));
+
+    if ((!value || /^https:\/\/ror\.org\/.+$/.test(value)) && errors.rorId) {
+      //clear error if there is not a value or the value is a valid ror id
+      setErrors((prev) => ({ ...prev, rorId: '' }));
     }
-  }
-  
-  
+  };
+
   const handleUnitIdChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setUnitId(value);
-  
-    if((!value || /^\d{6}$/.test(value)) && errors.unitId) {
-      setErrors(prev => ({...prev, unitId: ''}));
+
+    if ((!value || /^\d{6}$/.test(value)) && errors.unitId) {
+      setErrors((prev) => ({ ...prev, unitId: '' }));
     }
-  
+
     if (e.target.value.trim() !== '') {
       setDisabled(true);
     } else {
       setDisabled(false);
     }
   };
-  
+
   const handleLongitudeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setLongitude(value);
-  
-    if((!value || !isNaN(parseFloat(value))) && errors.longitude) {
-      setErrors(prev => ({...prev, longitude: ''}));
+
+    if ((!value || !isNaN(parseFloat(value))) && errors.longitude) {
+      setErrors((prev) => ({ ...prev, longitude: '' }));
     }
-  }
-  
+  };
+
   const handleLatitudeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setLatitude(value);
-  
-    if((!value || !isNaN(parseFloat(value))) && errors.latitude) {
-      setErrors(prev => ({...prev, latitude: ''}));
-    }
-  }
 
-  const handleSubmit = async (e: React.FormEvent, shouldRedirect: boolean = false)=> {
+    if ((!value || !isNaN(parseFloat(value))) && errors.latitude) {
+      setErrors((prev) => ({ ...prev, latitude: '' }));
+    }
+  };
+
+  const handleSubmit = async (
+    e: React.FormEvent,
+    shouldRedirect: boolean = false
+  ) => {
     e.preventDefault();
+
+    // Start submitting
+    setSubmitting(true);
 
     const errors = validateForm(name, unitId, rorId, longitude, latitude);
     if (errors && Object.keys(errors).length > 0) {
@@ -92,19 +100,15 @@ export default function AddInstitution() {
     };
 
     try {
-    const response = await fetch(
-      `${apiUrl}/institutions`,
-      {
+      const response = await fetch(`${apiUrl}/institutions`, {
         method: 'POST',
         body: JSON.stringify(institutionData),
         headers: {
           'Content-Type': 'application/json',
         },
-      }
-    );
+      });
 
       if (response.status === 200) {
-        alert('Institution added successfully');
         setErrors({});
 
         // Reset form data
@@ -116,30 +120,40 @@ export default function AddInstitution() {
         setLatitude('');
         setDisabled(false);
 
-        if(shouldRedirect) {
-          router.push('/')
+        if (shouldRedirect) {
+          router.push('/');
         }
-        
       } else {
-        try{
+        try {
           const error = await response.json();
-          const errorMessage = 'Error adding an institution'
+          const errorMessage = 'Error adding an institution';
           errorHandler(error, errorMessage);
-        } catch{
+        } catch {
           alert('Response is not a JSON object');
         }
       }
     } catch (error) {
       console.error('Failed to add institution:', error);
     }
+
+    // Stop submitting
+    setSubmitting(false);
   };
 
   return (
     <>
-      <Box sx={{display: 'flex', justifyContent: 'center', alignItems:'center', minHeight: "100vh", width: '100%'}}>
+      <Box
+        sx={{
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+          minHeight: '100vh',
+          width: '100%',
+        }}
+      >
         <Stack>
           <Item>
-            <Typography variant='h4' gutterBottom sx={{color: 'black'}}>
+            <Typography variant='h4' gutterBottom sx={{ color: 'black' }}>
               Add a new institution
             </Typography>
           </Item>
@@ -153,7 +167,9 @@ export default function AddInstitution() {
                 value={name}
                 onChange={handleNameChange}
                 error={!!errors.name}
-                helperText={errors.name || "Should match name from ROR id included below"}
+                helperText={
+                  errors.name || 'Should match name from ROR id included below'
+                }
               />
             </Item>
             <Item>
@@ -165,7 +181,13 @@ export default function AddInstitution() {
                 value={rorId}
                 onChange={handleRorIdChange}
                 error={!!errors.rorId}
-                helperText={errors.ror_id || <a href={"https://ror.org/search"}>Click on this text to search</a>}
+                helperText={
+                  errors.ror_id || (
+                    <a href={'https://ror.org/search'} target={'_blank'}>
+                      Click on this text to search
+                    </a>
+                  )
+                }
               />
             </Item>
             <Item>
@@ -177,10 +199,22 @@ export default function AddInstitution() {
                 value={unitId}
                 onChange={handleUnitIdChange}
                 error={!!errors.unitId}
-                helperText={errors.unitid ||  <span>
-                  Required if US University or College* |
-                  <a href={"https://nces.ed.gov/ipeds/datacenter/InstitutionByName.aspx"}> Click on this text to search</a>
-                </span>}
+                helperText={
+                  errors.unitid || (
+                    <span>
+                      Required if US University or College* |
+                      <a
+                        href={
+                          'https://nces.ed.gov/ipeds/datacenter/InstitutionByName.aspx'
+                        }
+                        target={'_blank'}
+                      >
+                        {' '}
+                        Click on this text to search
+                      </a>
+                    </span>
+                  )
+                }
               />
             </Item>
             <Item>
@@ -193,7 +227,10 @@ export default function AddInstitution() {
                 onChange={handleLongitudeChange}
                 error={!!errors.longitude}
                 disabled={disabled}
-                helperText={errors.longitude || "Required | Will be filled in automatically if ROR is included"}
+                helperText={
+                  errors.longitude ||
+                  'Required | Will be filled in automatically if ROR is included'
+                }
               />
             </Item>
             <Item>
@@ -206,28 +243,43 @@ export default function AddInstitution() {
                 onChange={handleLatitudeChange}
                 error={!!errors.latitude}
                 disabled={disabled}
-                helperText={errors.latitude || "Required | Will be filled in automatically if ROR is included"}
+                helperText={
+                  errors.latitude ||
+                  'Required | Will be filled in automatically if ROR is included'
+                }
               />
             </Item>
             <Item>
-                <Button variant='contained' sx={{
-                bgcolor: 'black',
-                '&:hover': {
-                  backgroundColor: '#555555',
-                }
-              }} onClick={(e) => handleSubmit(e, true)} type='button'>
-                  Create
-                </Button>
+              <Button
+                disabled={submitting}
+                variant='contained'
+                sx={{
+                  bgcolor: 'black',
+                  '&:hover': {
+                    backgroundColor: '#555555',
+                  },
+                }}
+                onClick={(e) => handleSubmit(e, true)}
+                type='button'
+              >
+                { submitting ? <CircularProgress/> : 'Create' }
+              </Button>
             </Item>
             <Item>
-                <Button variant='contained' sx={{
-                bgcolor: 'black',
-                '&:hover': {
-                  backgroundColor: '#555555',
-                }
-              }} onClick={(e) => handleSubmit(e, false)} type='button'>
-                  Create and add another
-                </Button>
+              <Button
+                disabled={submitting}
+                variant='contained'
+                sx={{
+                  bgcolor: 'black',
+                  '&:hover': {
+                    backgroundColor: '#555555',
+                  },
+                }}
+                onClick={(e) => handleSubmit(e, false)}
+                type='button'
+              >
+                { submitting ? <CircularProgress/> : 'Create and Add Another' }
+              </Button>
             </Item>
           </form>
           <Item></Item>
@@ -237,8 +289,13 @@ export default function AddInstitution() {
   );
 }
 
-
-const validateForm = (name: string, unitId: string, rorId: string, longitude: string, latitude: string ) => {
+const validateForm = (
+  name: string,
+  unitId: string,
+  rorId: string,
+  longitude: string,
+  latitude: string
+) => {
   const validationErrors: { [key: string]: string } = {};
 
   // Check if name is empty

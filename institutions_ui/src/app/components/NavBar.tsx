@@ -1,5 +1,14 @@
-'use client'
-import { Box, AppBar, Toolbar, Typography, Button, styled, alpha, InputBase } from '@mui/material';
+'use client';
+import {
+  Box,
+  AppBar,
+  Toolbar,
+  Typography,
+  Button,
+  styled,
+  alpha,
+  InputBase,
+} from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import { useInstitution } from '@/app/context/InstitutionContext';
 import React, { useState, useEffect } from 'react';
@@ -47,39 +56,40 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
 }));
 
 export default function NavBar() {
-
-  const { data, setFilteredInstitutions } = useInstitution()
+  const { data, setFilteredInstitutions } = useInstitution();
   const [searchTerm, setSearchTerm] = useState<string>('');
 
   useEffect(() => {
-    if(searchTerm === '') {
+    if (searchTerm === '') {
       setFilteredInstitutions(data);
-    } else{
-      const filtered = data.filter(institution => institution.name.toLowerCase().includes(searchTerm.toLowerCase()) || institution.id.toLowerCase().includes(searchTerm.toLowerCase()));
+    } else {
+      const filtered = data.filter(
+        (institution) =>
+          institution.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          institution.id.toLowerCase().includes(searchTerm.toLowerCase())
+      );
       setFilteredInstitutions(filtered);
     }
-  }, [searchTerm, data, setFilteredInstitutions])
+  }, [searchTerm, data, setFilteredInstitutions]);
 
   const HandleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(e.target.value);
-  }
+  };
 
   return (
     <Box>
-      <AppBar position='fixed' sx={{bgcolor: 'black'}}>
-        <Toolbar sx={{display: 'flex', justifyContent: 'space-between'}}>
-          <Link href={"/"}>
-            <Typography variant='h6'>
-              Topology Institutions API
-            </Typography>
+      <AppBar position='fixed' sx={{ bgcolor: 'black' }}>
+        <Toolbar sx={{ display: 'flex', justifyContent: 'space-between' }}>
+          <Link href={'/'}>
+            <Typography variant='h6'>Topology Institutions API</Typography>
           </Link>
-          <Box sx={{display: 'flex', flexGrow: 1, alignItems: 'center'}}>
+          <Box sx={{ display: 'flex', flexGrow: 1, alignItems: 'center' }}>
             <Search>
               <SearchIconWrapper>
                 <SearchIcon />
               </SearchIconWrapper>
               <StyledInputBase
-                placeholder="Search…"
+                placeholder='Search…'
                 inputProps={{ 'aria-label': 'search' }}
                 value={searchTerm}
                 onChange={HandleSearch}
@@ -87,14 +97,16 @@ export default function NavBar() {
             </Search>
           </Box>
           <Link href='/add-institution/'>
-          <Button 
+            <Button
               sx={{
                 color: 'white',
                 '&:hover': {
                   backgroundColor: 'rgba(255, 255, 255, 0.2)',
-                }
+                },
               }}
-            >Add Institution</Button>
+            >
+              Add Institution
+            </Button>
           </Link>
         </Toolbar>
       </AppBar>

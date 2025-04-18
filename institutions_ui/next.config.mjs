@@ -1,8 +1,8 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-    output: 'export',
-    basePath: '/ui',
-    trailingSlash: true,
+  output: 'export',
+  basePath: process.env.NODE_ENV === 'production' ? '/ui' : '',
+  trailingSlash: true,
 };
 
 export default nextConfig;
