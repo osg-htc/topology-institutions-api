@@ -215,13 +215,13 @@ def _update_institution_unit_id(session: Session, institution: Institution, unit
             session.add(ipeds_metadata)
 
             # Create the InstitutionInstitutionCarnegieClassificationMetadata object to store all the metadata
-            carnegie_data = load_carnegie_data()
-            carnegie_data_row = carnegie_data.get(int(unit_id))
-            carnegie_2025_data = load_carnegie_2025_data()
-            carnegie_2025_data_row = carnegie_2025_data.get(int(unit_id))
+            carnegie_data_table = load_carnegie_data()
+            carnegie_data = carnegie_data_table.get(int(unit_id), {}).get("basic2021", None)
+            carnegie_2025_data_table = load_carnegie_2025_data()
+            carnegie_2025_data = carnegie_2025_data_table.get(int(unit_id), {}).get("2025 Research Activity Designation", None)
             carnegie_metadata = InstitutionCarnegieClassificationMetadata(
-                classification2021=CARNEGIE_CLASSIFICATION_MAPPING.get(str(carnegie_data_row["basic2021"]), NULL),
-                classification2025=RESEARCH_ACTIVITY_DESIGNATION_2025_MAPPING.get(str(carnegie_2025_data_row["2025 Research Activity Designation"]), NULL),
+                classification2021=CARNEGIE_CLASSIFICATION_MAPPING.get(str(carnegie_data), None),
+                classification2025=RESEARCH_ACTIVITY_DESIGNATION_2025_MAPPING.get(str(carnegie_2025_data), None),
                 institution=institution,
                 institution_identifier_id=new_unitid.id
             )
