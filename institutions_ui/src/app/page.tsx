@@ -154,7 +154,7 @@ export default function InstitutionList() {
                   <TableCell>
                     {institution.ipeds_metadata?.website_address ? (
                       <a
-                        href={institution.ipeds_metadata?.website_address}
+                        href={institution.ipeds_metadata?.website_address?.includes("http") ? institution.ipeds_metadata?.website_address : `https://${institution.ipeds_metadata?.website_address}`}
                         target='_blank'
                         style={{
                           textDecoration: 'underline',
