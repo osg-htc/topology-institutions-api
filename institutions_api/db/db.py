@@ -148,6 +148,10 @@ def _update_institution_unit_id(session: Session, institution: Institution, unit
     if not unit_id_type:
         raise HTTPException(400, "IdentifierType for 'unitid' not found")
 
+    # If a unitid isn't provided and the institution doesn't have an unitid, return
+    if (unit_id is None or unit_id.strip() == "") and institution.ipeds_metadata is None:
+        return
+
     # If the institution has a existing unitid, but the input is null, delete the existing unitid
     if (not unit_id or unit_id.strip() == "") and institution.ipeds_metadata:
         if institution.carnegie_metadata:
@@ -160,6 +164,7 @@ def _update_institution_unit_id(session: Session, institution: Institution, unit
             .where(InstitutionIdentifier.institution_id == institution.id)
             .where(InstitutionIdentifier.identifier_type_id == unit_id_type.id))
 
+    # There is a unitid passed in
     else:
         ipeds_data = load_ipeds_data()  # load ipeds data
         ipeds_data_row = ipeds_data.get(unit_id)
