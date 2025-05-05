@@ -37,6 +37,7 @@ class InstitutionBaseModel(BaseModel):
     unitid: Optional[str] = Field(None, description="The institutions Unit ID used to map information from the IPEDS data system (https://nces.ed.gov/ipeds/use-the-data)")
     longitude: Optional[float] = Field(None, description="The institutions longitude position")
     latitude: Optional[float] = Field(None, description="The institutions latitude position")
+    state: Optional[str] = Field(None, description="The state where the institution is located")
     ipeds_metadata: Optional[InstitutionIPEDSMetadataModel] = Field(None, description="The associated IPEDS metadata for this institution")
     carnegie_metadata: Optional[InstitutionCarnegieClassificationMetadataModel] = Field(None, description="The associated Carnegie Classification metadata for this institution")
 
@@ -51,6 +52,7 @@ class InstitutionBaseModel(BaseModel):
             unitid=unitids[0] if unitids else None,
             latitude=inst.latitude,
             longitude=inst.longitude,
+            state=inst.state,
             ipeds_metadata=InstitutionIPEDSMetadataModel(**inst.ipeds_metadata.__dict__) if inst.ipeds_metadata else None,
             carnegie_metadata=InstitutionCarnegieClassificationMetadataModel(**inst.carnegie_metadata.__dict__) if inst.carnegie_metadata else None
         )
