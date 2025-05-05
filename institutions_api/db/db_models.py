@@ -29,6 +29,7 @@ class Institution(Base):
     valid = Column(Boolean, default=True)
     latitude = Column(Float)
     longitude = Column(Float)
+    state = Column(String)
 
     created = Column(DateTime, nullable=False, server_default=func.now())
     updated = Column(DateTime, onupdate=func.now())

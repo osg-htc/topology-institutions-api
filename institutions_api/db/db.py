@@ -179,6 +179,11 @@ def _update_institution_unit_id(session: Session, institution: Institution, unit
                 institution.longitude = float(ipeds_data_row.get('LONGITUD'))
                 session.commit()
 
+        # Update the state for the institution
+        if institution.state is None:
+            institution.state = ipeds_data_row.get('STABBR')
+            session.commit()
+
         # Check if the institution already has an unitid
         existing_unitid = [i for i in institution.identifiers if i.identifier_type_id == unit_id_type.id]
 
