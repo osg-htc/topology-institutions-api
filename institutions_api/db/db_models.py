@@ -41,9 +41,12 @@ class Institution(Base):
     ipeds_metadata: Mapped["InstitutionIPEDSMetadata"] = relationship(back_populates="institution", lazy="joined")
     carnegie_metadata: Mapped["InstitutionCarnegieClassificationMetadata"] = relationship(back_populates="institution", lazy="joined")
 
-    def __init__(self, name, topology_identifier, created_by):
+    def __init__(self, name, latitude, longitude, state, topology_identifier, created_by):
         self.id = uuid4()
         self.name = name
+        self.latitude = latitude
+        self.longitude = longitude
+        self.state = state
         self.topology_identifier = topology_identifier
         self.created_by = created_by
         self.created = datetime.now()

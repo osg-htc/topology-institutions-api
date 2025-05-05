@@ -107,7 +107,7 @@ def add_institution(institution: InstitutionValidatorModel, author: OIDCUserInfo
             return update_institution(deactivated_id, institution, author)
 
         topology_id = _get_unused_osg_id(session)
-        inst = Institution(institution.name, topology_id, author.id)
+        inst = Institution(institution.name, institution.latitude, institution.longitude, institution.state, topology_id, author.id)
         session.add(inst)
         if institution.ror_id:
             ror_id = InstitutionIdentifier(_ror_id_type(session), institution.ror_id, inst.id)
@@ -254,6 +254,7 @@ def update_institution(short_id: str, institution: InstitutionValidatorModel, au
         to_update.valid = True
         to_update.latitude = institution.latitude
         to_update.longitude = institution.longitude
+        to_update.state = institution.state
         _update_institution_ror_id(session, to_update, institution.ror_id)
         _update_institution_unit_id(session, to_update, institution.unitid)
 
