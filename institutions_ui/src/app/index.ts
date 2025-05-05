@@ -5,6 +5,7 @@ export interface Institution {
   unitid: string;
   longitude: number | string;
   latitude: number | string;
+  state: string;
   ipeds_metadata: IpedsMetadata;
 }
 
