@@ -1,12 +1,10 @@
 'use client';
 
-import {Button, TextField, Box, Typography, Stack, CircularProgress} from '@mui/material';
+import {Box} from '@mui/material';
 import {useCallback, useEffect, useState} from 'react';
 import { useSearchParams } from 'next/navigation';
 import { Institution } from '@/app';
-import { Item } from '@/app/components/Item';
 import { useRouter } from 'next/navigation';
-import errorHandler from '@/util/errorHandler';
 import InstitutionForm from "@/app/(institution)/components/form";
 
 export default function Page() {
@@ -69,7 +67,7 @@ const handleSubmit = async (i: Institution) => {
     try {
       const errorResponse = await response.json();
       error = `Error adding an institution: ${JSON.stringify(errorResponse)}`;
-    } catch (e) {}
+    } catch {}
 
     throw new Error(error);
   }

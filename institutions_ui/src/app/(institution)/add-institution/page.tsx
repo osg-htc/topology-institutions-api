@@ -52,7 +52,7 @@ const handleSubmit = async (
     try {
       const errorResponse = await response.json();
       error = `Error adding an institution: ${JSON.stringify(errorResponse)}`;
-    } catch (e) {}
+    } catch {}
 
     throw new Error(error);
   }
