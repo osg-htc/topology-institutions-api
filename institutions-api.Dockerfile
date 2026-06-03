@@ -1,7 +1,8 @@
 FROM almalinux:9
 
 RUN yum update -y && \
-    yum install -y python3-pip httpd mod_auth_openidc python3-mod_wsgi && \
+    yum install -y python3.14 python3.14-pip python3.14-devel httpd httpd-devel mod_auth_openidc gcc make && \
+    pip3.14 install mod_wsgi && \
     yum clean all && rm -rf /var/cache/yum/*
 
 # Add the apache VirtualHost, to setup the WSGI module for the app
@@ -9,7 +10,7 @@ COPY apache.conf /etc/httpd/conf.d/
 
 # Install FastAPI and the WSGIMiddleware
 COPY requirements.txt /srv/requirements.txt
-RUN pip install -r /srv/requirements.txt
+RUN pip3.14 install -r /srv/requirements.txt
 
 # Add the FastAPI application
 COPY startup.sh /bin/

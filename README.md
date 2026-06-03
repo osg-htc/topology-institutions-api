@@ -68,7 +68,7 @@ to build labeled with that tag. Manually update the tiger production image layer
 Running the following will build and deploy this image in a location that it can be pulled from Tiger.
 
 ```shell
-TAG=0.2.7
+TAG=0.2.8
 ```
 
 ```shell
@@ -80,7 +80,7 @@ docker push hub.opensciencegrid.org/opensciencegrid/topology-institutions-api:$T
 ```
 
 ```shell
-docker run --env-file .env hub.opensciencegrid.org/opensciencegrid/topology-institutions-api:0.2.5
+docker run --env-file .env hub.opensciencegrid.org/opensciencegrid/topology-institutions-api:0.2.8
 ```
 
 ## UI
