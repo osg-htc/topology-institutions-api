@@ -2,7 +2,7 @@ FROM node:lts AS build-step
 WORKDIR /build
 
 COPY institutions_ui/package.json institutions_ui/package-lock.json ./
-RUN npm install
+RUN npm ci
 
 COPY institutions_ui/ /build/
 RUN npm run build
